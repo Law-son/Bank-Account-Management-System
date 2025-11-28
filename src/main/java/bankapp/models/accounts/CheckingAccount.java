@@ -22,8 +22,10 @@ public class CheckingAccount extends Account {
 
     @Override
     public void displayAccountDetails() {
-        System.out.println("ACC: " + getAccountNumber() + " | Type: Checking | Balance: $" + balance +
-                " | Overdraft Limit: $" + overdraftLimit);
+        System.out.printf(" %s | %-18s | Checking   | $%,.2f       | Active%n",
+                getAccountNumber(), getCustomer().getName(), balance);
+        System.out.println("        |                    | Overdraft Limit: $1,000.00 | Monthly Fee: $10.00");
+        System.out.println("-------------------------------------------------------------------------------");
     }
 
     @Override

@@ -22,9 +22,12 @@ public class SavingsAccount extends Account {
 
     @Override
     public void displayAccountDetails() {
-        System.out.println("ACC: " + getAccountNumber() + " | Type: Savings | Balance: $" + balance +
-                " | Interest: " + interestRate + "%");
+        System.out.printf(" %s | %-18s | Savings    | $%,.2f       | Active%n",
+                getAccountNumber(), getCustomer().getName(), balance);
+        System.out.println("        |                    | Interest Rate: 3.5% | Min Balance: $500.00");
+        System.out.println("-------------------------------------------------------------------------------");
     }
+
 
     @Override
     public String getAccountType() {

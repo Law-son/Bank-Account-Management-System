@@ -40,22 +40,26 @@ public class Main implements Transactable {
     // --- Menus ---
 
     private static void showMainMenu() {
-        System.out.println("\n=== BANK ACCOUNT MANAGEMENT SYSTEM ===");
+        System.out.println("╔══════════════════════════════════════════════════╗");
+        System.out.println("║       BANK ACCOUNT MANAGEMENT - MAIN MENU        ║");
+        System.out.println("╚══════════════════════════════════════════════════╝\n");
+
         System.out.println("1. Create Account");
         System.out.println("2. View Accounts");
         System.out.println("3. Process Transaction");
         System.out.println("4. View Transaction History");
-        System.out.println("5. Exit");
+        System.out.println("5. Exit\n");
 
-        int choice = InputValidator.getInt("Select Option");
+        System.out.print("Enter choice: ");
+
+        int choice = InputValidator.getInt("Enter Choice: ");
 
         switch (choice) {
             case 1:
-                menuStack.push(Main::createAccountMenu); // Push new screen
+                menuStack.push(Main::createAccountMenu);
                 break;
             case 2:
                 accountManager.viewAllAccounts();
-                // We stay on this screen in the stack, or just pause
                 InputValidator.getString("Press Enter to continue");
                 break;
             case 3:
@@ -65,7 +69,7 @@ public class Main implements Transactable {
                 menuStack.push(Main::viewHistoryMenu);
                 break;
             case 5:
-                menuStack.pop(); // Remove main menu -> Stack empty -> Loop ends
+                menuStack.pop();
                 break;
             default:
                 System.out.println("Invalid option.");

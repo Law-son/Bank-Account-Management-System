@@ -30,12 +30,16 @@ public class AccountManager {
             System.out.println("No accounts found.");
             return;
         }
-        System.out.println("\n--- All Accounts ---");
+        System.out.println("-------------------------------------------------------------------------------");
+        System.out.printf(" ACC NO | %-18s | %-10s | %-15s | %s%n",
+                "CUSTOMER NAME", "TYPE", "BALANCE", "STATUS");
+        System.out.println("-------------------------------------------------------------------------------");
         for (int i = 0; i < accountCount; i++) {
             accounts[i].displayAccountDetails();
         }
+        // Summary
         System.out.println("Total Accounts: " + accountCount);
-        System.out.println("Total Bank Balance: $" + getTotalBalance());
+        System.out.println("Total Bank Balance: $" + String.format("%,.2f", getTotalBalance()));
     }
 
     public double getTotalBalance() {
