@@ -2,6 +2,8 @@ package main.java.bankapp.managers;
 
 import main.java.bankapp.models.accounts.Account;
 
+import java.util.Objects;
+
 public class AccountManager {
     private Account[] accounts = new Account[50];
     private int accountCount = 0;
@@ -9,7 +11,27 @@ public class AccountManager {
     public void addAccount(Account account) {
         if (accountCount < accounts.length) {
             accounts[accountCount++] = account;
-            System.out.println("Account created successfully: " + account.getAccountNumber());
+
+            if (Objects.equals(account.getAccountType(), "Regular")) {
+                System.out.println("\nAccount created successfully!");
+                System.out.printf("Account Number: %s%n", account.getAccountNumber());
+                System.out.printf("Customer: %s (%s)%n", account.getCustomer().getName(), account.getCustomer().getCustomerType());
+                System.out.printf("Account Type: %s%n", account.getAccountType());
+                System.out.printf("Initial Balance: %s%n", account.getBalance());
+                System.out.printf("Interest Rate: 3.5%%%n");
+                System.out.printf("Minimum Balance: $500.00%n");
+                System.out.printf("Status: Active%n\n");
+            } else {
+                System.out.println("\nAccount created successfully!");
+                System.out.printf("Account Number: %s%n", account.getAccountNumber());
+                System.out.printf("Customer: %s (%s)%n", account.getCustomer().getName(), account.getCustomer().getCustomerType());
+                System.out.printf("Account Type: %s%n", account.getAccountType());
+                System.out.printf("Initial Balance: %s%n", account.getBalance());
+                System.out.printf("Overdrift Limit: $1,000.00%n");
+                System.out.printf("Monthly Fee: $0.00 WAIVED - Premium Customer%n");
+                System.out.printf("Status: Active%n\n");
+            }
+
         } else {
             System.out.println("Error: Account storage is full.");
         }

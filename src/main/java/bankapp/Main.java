@@ -37,8 +37,7 @@ public class Main implements Transactable {
         System.out.println("Exiting Application. Goodbye!");
     }
 
-    // --- Menus ---
-
+    // Menu
     private static void showMainMenu() {
         System.out.println("╔══════════════════════════════════════════════════╗");
         System.out.println("║       BANK ACCOUNT MANAGEMENT - MAIN MENU        ║");
@@ -50,9 +49,7 @@ public class Main implements Transactable {
         System.out.println("4. View Transaction History");
         System.out.println("5. Exit\n");
 
-        System.out.print("Enter choice: ");
-
-        int choice = InputValidator.getInt("Enter Choice: ");
+        int choice = InputValidator.getInt("Enter Choice");
 
         switch (choice) {
             case 1:
@@ -77,31 +74,38 @@ public class Main implements Transactable {
     }
 
     private static void createAccountMenu() {
-        System.out.println("\n--- Create New Account ---");
-        System.out.println("0. Back");
+        System.out.println("\nACCOUNT CREATION        ");
+        System.out.println("--------------------------");
+        System.out.println("Enter 0 to go back.\n");
 
-        String name = InputValidator.getString("Customer Name");
+        String name = InputValidator.getString("Enter customer name");
         if(name.equals("0")) { menuStack.pop(); return; }
 
-        int age = InputValidator.getInt("Age");
-        String contact = InputValidator.getString("Contact");
-        String address = InputValidator.getString("Address");
+        int age = InputValidator.getInt("Enter customer age");
+        String contact = InputValidator.getString("Enter customer contact");
+        String address = InputValidator.getString("Enter customer address");
 
         // Select Customer Type
-        System.out.println("Customer Type: 1. Regular 2. Premium");
-        int custType = InputValidator.getInt("Choice");
+        System.out.println("\nCustomer type:                      ");
+        System.out.println("1. Regular Customer (Standard banking services)");
+        System.out.println("2. Premium Customer (Enhanced benefits, min balance $10,000)\n");
+        int customerType = InputValidator.getInt("Select type (1-2)");
 
+        // TODO: enforce validation here for other inputs aside 1 and 2
         Customer customer;
-        if (custType == 2) {
+        if (customerType == 2) {
             customer = new PremiumCustomer(name, age, contact, address);
         } else {
             customer = new RegularCustomer(name, age, contact, address);
         }
 
         // Select Account Type
-        System.out.println("Account Type: 1. Savings 2. Checking");
-        int accType = InputValidator.getInt("Choice");
-        double initialDep = InputValidator.getDouble("Initial Deposit");
+
+        System.out.println("\nAccount type:                      ");
+        System.out.println("1. Savings Account (Interest: 3.5%, Min Balance: $500)");
+        System.out.println("2. Checking Account (Overdrift: $1,000, Monthly Fee: $10)\n");
+        int accType = InputValidator.getInt("Select type (1-2)");
+        double initialDep = InputValidator.getDouble("Enter initial deposit amount");
 
         Account account;
         if (accType == 1) {
@@ -116,35 +120,44 @@ public class Main implements Transactable {
     }
 
     private static void processTransactionMenu() {
-        System.out.println("\n--- Process Transaction ---");
-        String accNum = InputValidator.getString("Enter Account Number (or '0' to back)");
+        System.out.println("\nPROCESS TRANSACTION     ");
+        System.out.println("--------------------------");
+        System.out.println("Enter 0 to go back.\n");
+
+        String accNum = InputValidator.getString("Enter Account Number");
         if (accNum.equals("0")) { menuStack.pop(); return; }
 
         Account account = accountManager.findAccount(accNum);
         if (account == null) {
             System.out.println("Account not found.");
             return;
+        } else {
+            System.out.print("\nAccount details:%n");
+            System.out.printf("Customer: %s%n", account.getCustomer().getName());
+            System.out.printf("Account Type: %s%n", account.getAccountType());
+            System.out.printf("Current Balance: %2f%n", account.getBalance());
         }
 
+        System.out.println("\nTransaction type: ");
         System.out.println("1. Deposit");
-        System.out.println("2. Withdraw");
-        int type = InputValidator.getInt("Select Type");
+        System.out.println("2. Withdrawal\n");
+        int type = InputValidator.getInt("Select Type (1-2)");
         double amount = InputValidator.getDouble("Enter Amount");
 
         boolean success = false;
-        String typeStr = "";
+        String transactionType = "";
 
         if (type == 1) {
-            typeStr = "Deposit";
+            transactionType = "Deposit";
             account.deposit(amount);
             success = true;
         } else if (type == 2) {
-            typeStr = "Withdrawal";
+            transactionType = "Withdrawal";
             success = account.withdraw(amount);
         }
 
         if (success) {
-            Transaction txn = new Transaction(accNum, typeStr, amount, account.getBalance());
+            Transaction txn = new Transaction(accNum, transactionType, amount, account.getBalance());
             transactionManager.addTransaction(txn);
             System.out.println("Transaction Successful. New Balance: $" + account.getBalance());
         }
@@ -162,15 +175,12 @@ public class Main implements Transactable {
         menuStack.pop();
     }
 
-    // Required by Interface Transactable (Main implements it to fulfill req, 
-    // though logic is delegated to Account classes usually)
     @Override
     public boolean processTransaction(double amount, String type) {
         return false;
     }
 
     private static void seedData() {
-        // [cite: 8] Create 3 Savings, 2 Checking
         Customer c1 = new RegularCustomer("John Doe", 30, "555-0101", "NY");
         Customer c2 = new PremiumCustomer("Jane Smith", 45, "555-0202", "CA");
 
