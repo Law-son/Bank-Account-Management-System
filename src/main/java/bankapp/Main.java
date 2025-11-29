@@ -100,7 +100,6 @@ public class Main implements Transactable {
         }
 
         // Select Account Type
-
         System.out.println("\nAccount type:                      ");
         System.out.println("1. Savings Account (Interest: 3.5%, Min Balance: $500)");
         System.out.println("2. Checking Account (Overdrift: $1,000, Monthly Fee: $10)\n");
@@ -130,39 +129,111 @@ public class Main implements Transactable {
         Account account = accountManager.findAccount(accNum);
         if (account == null) {
             System.out.println("Account not found.");
+            InputValidator.getString("Press Enter to continue...");
+            menuStack.pop();
             return;
-        } else {
-            System.out.print("\nAccount details:%n");
-            System.out.printf("Customer: %s%n", account.getCustomer().getName());
-            System.out.printf("Account Type: %s%n", account.getAccountType());
-            System.out.printf("Current Balance: %2f%n", account.getBalance());
         }
 
+        // Display account details
+        System.out.println("\nAccount details: ");
+        System.out.printf("Customer: %s%n", account.getCustomer().getName());
+        System.out.printf("Account Type: %s%n", account.getAccountType());
+        System.out.printf("Current Balance: $%.2f%n", account.getBalance());
+
+        // Select transaction type
         System.out.println("\nTransaction type: ");
         System.out.println("1. Deposit");
         System.out.println("2. Withdrawal\n");
         int type = InputValidator.getInt("Select Type (1-2)");
-        double amount = InputValidator.getDouble("Enter Amount");
-
-        boolean success = false;
-        String transactionType = "";
-
-        if (type == 1) {
-            transactionType = "Deposit";
-            account.deposit(amount);
-            success = true;
-        } else if (type == 2) {
-            transactionType = "Withdrawal";
-            success = account.withdraw(amount);
+        
+        if (type != 1 && type != 2) {
+            System.out.println("Invalid transaction type.");
+            InputValidator.getString("Press Enter to continue...");
+            menuStack.pop();
+            return;
         }
 
-        if (success) {
+        // Enter amount
+        double amount = InputValidator.getDouble("Enter Amount");
+        
+        if (amount <= 0) {
+            System.out.println("Invalid amount. Amount must be greater than 0.");
+            InputValidator.getString("Press Enter to continue...");
+            menuStack.pop();
+            return;
+        }
+
+        String transactionType = (type == 1) ? "Deposit" : "Withdrawal";
+        double previousBalance = account.getBalance();
+        double newBalance;
+
+        // Validate withdrawal before showing confirmation (without processing)
+        if (type == 2) {
+            boolean canWithdraw = false;
+            if (account instanceof SavingsAccount) {
+                // For SavingsAccount: balance - amount >= minimumBalance (500)
+                canWithdraw = (previousBalance - amount >= 500);
+            } else if (account instanceof CheckingAccount) {
+                // For CheckingAccount: balance - amount >= -overdraftLimit (-1000)
+                canWithdraw = (previousBalance - amount >= -1000);
+            }
+            
+            if (!canWithdraw) {
+                if (account instanceof SavingsAccount) {
+                    System.out.println("Transaction Failed: Minimum balance of $500.00 must be maintained.");
+                } else {
+                    System.out.println("Transaction Failed: Exceeds overdraft limit of $1000.00");
+                }
+                InputValidator.getString("Press Enter to continue...");
+                menuStack.pop();
+                return;
+            }
+            newBalance = previousBalance - amount;
+        } else {
+            newBalance = previousBalance + amount;
+        }
+
+        // Show transaction confirmation details
+        System.out.println("\nTRANSACTION CONFIRMATION");
+        System.out.println("---------------------------------");
+        System.out.printf("Account: %s%n", accNum);
+        System.out.printf("Type: %s%n", transactionType);
+        System.out.printf("Amount: $%.2f%n", amount);
+        System.out.printf("Previous Balance: $%.2f%n", previousBalance);
+        System.out.printf("New Balance: $%.2f%n", newBalance);
+        System.out.println("---------------------------------");
+
+        // Ask for confirmation
+        String confirmation = InputValidator.getString("Confirm transaction? (Y/N)");
+        
+        if (confirmation.equalsIgnoreCase("Y")) {
+            // Process the transaction
+            if (type == 1) {
+                account.deposit(amount);
+            } else {
+                // Process withdrawal (validation already done, so this should succeed)
+                account.withdraw(amount);
+            }
+            
+            // Add transaction details
             Transaction txn = new Transaction(accNum, transactionType, amount, account.getBalance());
             transactionManager.addTransaction(txn);
-            System.out.println("Transaction Successful. New Balance: $" + account.getBalance());
+            
+            // Show transaction successful message
+            System.out.println("\nTransaction completed successfully!");
+            
+            // Press Enter to continue
+            InputValidator.getString("Press Enter to continue");
+            menuStack.pop();
+        } else if (confirmation.equalsIgnoreCase("N")) {
+            // User didn't confirm
+            InputValidator.getString("Press Enter to continue");
+            menuStack.pop();
+        } else {
+            System.out.println("Invalid input. Please enter Y or N.");
+            InputValidator.getString("Press Enter to continue");
+            menuStack.pop();
         }
-
-        // Don't pop automatically, let them do another txn or type 0 to back
     }
 
     private static void viewHistoryMenu() {
