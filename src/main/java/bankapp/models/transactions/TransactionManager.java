@@ -1,5 +1,7 @@
 package main.java.bankapp.models.transactions;
 
+import main.java.bankapp.models.accounts.Account;
+
 public class TransactionManager {
     private Transaction[] transactions = new Transaction[200];
     private int transactionCount = 0;
@@ -12,8 +14,16 @@ public class TransactionManager {
         }
     }
 
-    public void viewTransactionsByAccount(String accountNumber) {
-        System.out.println("\n--- Transaction History for " + accountNumber + " ---");
+    public void viewTransactionsByAccount(String accountNumber, Account account) {
+        // Display account details if account is found
+        if (account != null) {
+            System.out.printf("\nAccount: %s - %s%n", account.getAccountNumber(), account.getCustomer().getName());
+            System.out.printf("Account Type: %s%n", account.getAccountType());
+            System.out.printf("Current Balance: $%.2f%n", account.getBalance());
+        } else {
+            System.out.printf("\nAccount: %s%n", accountNumber);
+        }
+        
         boolean found = false;
 
         // Display in reverse chronological order (Newest first)
@@ -25,7 +35,9 @@ public class TransactionManager {
         }
 
         if (!found) {
-            System.out.println("No transactions found.");
+            System.out.println("\n------------------------------------------");
+            System.out.println("No transactions recorded for this account.");
+            System.out.println("------------------------------------------\n");
         } else {
             printSummary(accountNumber);
         }

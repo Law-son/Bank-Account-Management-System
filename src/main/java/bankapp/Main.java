@@ -22,7 +22,6 @@ public class Main implements Transactable {
     private static Stack<Runnable> menuStack = new Stack<>();
 
     public static void main(String[] args) {
-        // Seed some data for testing [cite: 8]
         seedData();
 
         // Push the Main Menu as the first item
@@ -30,7 +29,6 @@ public class Main implements Transactable {
 
         // Navigation Loop
         while (!menuStack.isEmpty()) {
-            // Execute the current menu
             menuStack.peek().run();
         }
 
@@ -237,11 +235,29 @@ public class Main implements Transactable {
     }
 
     private static void viewHistoryMenu() {
-        System.out.println("\n--- View Transaction History ---");
-        String accNum = InputValidator.getString("Enter Account Number (or '0' to back)");
-        if (accNum.equals("0")) { menuStack.pop(); return; }
-
-        transactionManager.viewTransactionsByAccount(accNum);
+        System.out.println("\nVIEW TRANSACTION HISTORY");
+        System.out.println("---------------------------------");
+        System.out.println("Enter 0 to go back\n");
+        
+        Account account = null;
+        String accNum = "";
+        
+        // Loop until valid account is found or user enters 0 to go back
+        while (account == null) {
+            accNum = InputValidator.getString("Enter Account Number");
+            if (accNum.equals("0")) { 
+                menuStack.pop(); 
+                return; 
+            }
+            
+            account = accountManager.findAccount(accNum);
+            if (account == null) {
+                System.out.println("Account not found.");
+            }
+        }
+        
+        // Account found, proceed with viewing transactions
+        transactionManager.viewTransactionsByAccount(accNum, account);
         InputValidator.getString("Press Enter to continue");
         menuStack.pop();
     }
