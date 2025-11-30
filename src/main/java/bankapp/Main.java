@@ -79,7 +79,7 @@ public class Main implements Transactable {
         if(name.equals("0")) { menuStack.pop(); return; }
 
         int age = InputValidator.getIntPositive("Enter customer age");
-        String contact = InputValidator.getString("Enter customer contact");
+        String contact = InputValidator.getContactNumber("Enter customer contact");
         String address = InputValidator.getString("Enter customer address");
 
         // Select Customer Type

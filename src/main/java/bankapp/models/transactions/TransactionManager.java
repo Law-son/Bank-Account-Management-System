@@ -62,8 +62,11 @@ public class TransactionManager {
             if (transaction.getAccountNumber().equals(accountNumber)) {
                 txnTotal++;
 
-                // Format amount with sign for display
-                String amountStr = (transaction.getAmount() >= 0 ? "+" : "") + InputValidator.formatAmount(Math.abs(transaction.getAmount()));
+                // Format amount with sign before dollar sign: +$2,694.00 or -$2,694.00
+                String sign = transaction.getAmount() >= 0 ? "+" : "-";
+                String formattedAmount = InputValidator.formatAmount(Math.abs(transaction.getAmount()));
+                // Remove the $ from formatAmount and add it after the sign
+                String amountStr = sign + "$" + formattedAmount.substring(1); // substring(1) removes the $ from formatAmount
 
                 // Sum totals
                 if (transaction.getType().equalsIgnoreCase("DEPOSIT")) {

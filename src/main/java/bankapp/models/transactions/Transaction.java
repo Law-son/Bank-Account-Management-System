@@ -21,7 +21,7 @@ public class Transaction {
         this.type = type;
         this.amount = amount;
         this.balanceAfter = balanceAfter;
-        this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm a"));
     }
 
     public void displayTransactionDetails() {

@@ -166,4 +166,26 @@ public class InputValidator {
     public static String formatAmount(double amount) {
         return currencyFormatter.format(amount);
     }
+
+    /**
+     * Gets a contact number in the format "+1-XXX-XXXX".
+     * Continues prompting until a valid contact number is entered.
+     * 
+     * @param prompt The prompt message to display
+     * @return Valid contact number in format "+1-XXX-XXXX"
+     */
+    public static String getContactNumber(String prompt) {
+        while (true) {
+            System.out.print(prompt + ": ");
+            String input = scanner.nextLine().trim();
+            
+            // Validate format: +1-XXX-XXXX
+            // Pattern: starts with +1-, followed by 3 digits, dash, 4 digits
+            if (input.matches("\\+1-\\d{3}-\\d{4}")) {
+                return input;
+            } else {
+                System.out.println("Invalid contact number format. Please enter in format: +1-XXX-XXXX (e.g., +1-555-1234)");
+            }
+        }
+    }
 }
