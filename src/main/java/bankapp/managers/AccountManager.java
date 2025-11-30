@@ -1,6 +1,7 @@
 package main.java.bankapp.managers;
 
 import main.java.bankapp.models.accounts.Account;
+import main.java.bankapp.utils.InputValidator;
 
 import java.util.Objects;
 
@@ -17,18 +18,18 @@ public class AccountManager {
                 System.out.printf("Account Number: %s%n", account.getAccountNumber());
                 System.out.printf("Customer: %s (%s)%n", account.getCustomer().getName(), account.getCustomer().getCustomerType());
                 System.out.printf("Account Type: %s%n", account.getAccountType());
-                System.out.printf("Initial Balance: %s%n", account.getBalance());
+                System.out.printf("Initial Balance: %s%n", InputValidator.formatAmount(account.getBalance()));
                 System.out.printf("Interest Rate: 3.5%%%n");
-                System.out.printf("Minimum Balance: $500.00%n");
+                System.out.printf("Minimum Balance: %s%n", InputValidator.formatAmount(500.0));
                 System.out.printf("Status: Active%n\n");
             } else {
                 System.out.println("\nAccount created successfully!");
                 System.out.printf("Account Number: %s%n", account.getAccountNumber());
                 System.out.printf("Customer: %s (%s)%n", account.getCustomer().getName(), account.getCustomer().getCustomerType());
                 System.out.printf("Account Type: %s%n", account.getAccountType());
-                System.out.printf("Initial Balance: %s%n", account.getBalance());
-                System.out.printf("Overdrift Limit: $1,000.00%n");
-                System.out.printf("Monthly Fee: $0.00 WAIVED - Premium Customer%n");
+                System.out.printf("Initial Balance: %s%n", InputValidator.formatAmount(account.getBalance()));
+                System.out.printf("Overdrift Limit: %s%n", InputValidator.formatAmount(1000.0));
+                System.out.printf("Monthly Fee: %s WAIVED - Premium Customer%n", InputValidator.formatAmount(0.0));
                 System.out.printf("Status: Active%n\n");
             }
 
@@ -61,7 +62,7 @@ public class AccountManager {
         }
         // Summary
         System.out.println("Total Accounts: " + accountCount);
-        System.out.println("Total Bank Balance: $" + String.format("%,.2f", getTotalBalance()));
+        System.out.println("Total Bank Balance: " + InputValidator.formatAmount(getTotalBalance()));
     }
 
     public double getTotalBalance() {

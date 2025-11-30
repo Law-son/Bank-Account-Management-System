@@ -134,7 +134,7 @@ public class Main implements Transactable {
         System.out.println("\nAccount details: ");
         System.out.printf("Customer: %s%n", account.getCustomer().getName());
         System.out.printf("Account Type: %s%n", account.getAccountType());
-        System.out.printf("Current Balance: $%.2f%n", account.getBalance());
+        System.out.printf("Current Balance: %s%n", InputValidator.formatAmount(account.getBalance()));
 
         // Select transaction type
         System.out.println("\nTransaction type: ");
@@ -162,9 +162,9 @@ public class Main implements Transactable {
             
             if (!canWithdraw) {
                 if (account instanceof SavingsAccount) {
-                    System.out.println("Transaction Failed: Minimum balance of $500.00 must be maintained.");
+                    System.out.println("Transaction Failed: Minimum balance of " + InputValidator.formatAmount(500.0) + " must be maintained.");
                 } else {
-                    System.out.println("Transaction Failed: Exceeds overdraft limit of $1000.00");
+                    System.out.println("Transaction Failed: Exceeds overdraft limit of " + InputValidator.formatAmount(1000.0));
                 }
                 InputValidator.getString("Press Enter to continue");
                 menuStack.pop();
@@ -180,9 +180,9 @@ public class Main implements Transactable {
         System.out.println("---------------------------------");
         System.out.printf("Account: %s%n", accNum);
         System.out.printf("Type: %s%n", transactionType);
-        System.out.printf("Amount: $%.2f%n", amount);
-        System.out.printf("Previous Balance: $%.2f%n", previousBalance);
-        System.out.printf("New Balance: $%.2f%n", newBalance);
+        System.out.printf("Amount: %s%n", InputValidator.formatAmount(amount));
+        System.out.printf("Previous Balance: %s%n", InputValidator.formatAmount(previousBalance));
+        System.out.printf("New Balance: %s%n", InputValidator.formatAmount(newBalance));
         System.out.println("---------------------------------");
 
         // Ask for confirmation

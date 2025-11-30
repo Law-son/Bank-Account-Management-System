@@ -1,6 +1,7 @@
 package main.java.bankapp.models.accounts;
 
 import main.java.bankapp.models.customers.Customer;
+import main.java.bankapp.utils.InputValidator;
 
 public class CheckingAccount extends Account {
     private double overdraftLimit = 1000;
@@ -16,15 +17,15 @@ public class CheckingAccount extends Account {
             balance -= amount;
             return true;
         }
-        System.out.println("Transaction Failed: Exceeds overdraft limit of $" + overdraftLimit);
+        System.out.println("Transaction Failed: Exceeds overdraft limit of " + InputValidator.formatAmount(overdraftLimit));
         return false;
     }
 
     @Override
     public void displayAccountDetails() {
-        System.out.printf(" %s | %-18s | Checking   | $%,.2f       | Active%n",
-                getAccountNumber(), getCustomer().getName(), balance);
-        System.out.println("        |                    | Overdraft Limit: $1,000.00 | Monthly Fee: $10.00");
+        System.out.printf(" %s | %-18s | Checking   | %-15s | Active%n",
+                getAccountNumber(), getCustomer().getName(), InputValidator.formatAmount(balance));
+        System.out.println("        |                    | Overdraft Limit: " + InputValidator.formatAmount(1000.0) + " | Monthly Fee: " + InputValidator.formatAmount(10.0));
         System.out.println("-------------------------------------------------------------------------------");
     }
 

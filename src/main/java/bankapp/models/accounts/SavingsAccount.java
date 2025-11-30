@@ -1,6 +1,7 @@
 package main.java.bankapp.models.accounts;
 
 import main.java.bankapp.models.customers.Customer;
+import main.java.bankapp.utils.InputValidator;
 
 public class SavingsAccount extends Account {
     private double interestRate = 3.5;
@@ -16,15 +17,15 @@ public class SavingsAccount extends Account {
             balance -= amount;
             return true;
         }
-        System.out.println("Transaction Failed: Minimum balance of $" + minimumBalance + " must be maintained.");
+        System.out.println("Transaction Failed: Minimum balance of " + InputValidator.formatAmount(minimumBalance) + " must be maintained.");
         return false;
     }
 
     @Override
     public void displayAccountDetails() {
-        System.out.printf(" %s | %-18s | Savings    | $%,.2f       | Active%n",
-                getAccountNumber(), getCustomer().getName(), balance);
-        System.out.println("        |                    | Interest Rate: 3.5% | Min Balance: $500.00");
+        System.out.printf(" %s | %-18s | Savings    | %-15s | Active%n",
+                getAccountNumber(), getCustomer().getName(), InputValidator.formatAmount(balance));
+        System.out.println("        |                    | Interest Rate: 3.5% | Min Balance: " + InputValidator.formatAmount(500.0));
         System.out.println("-------------------------------------------------------------------------------");
     }
 

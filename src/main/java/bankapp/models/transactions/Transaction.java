@@ -1,5 +1,7 @@
 package main.java.bankapp.models.transactions;
 
+import main.java.bankapp.utils.InputValidator;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -23,17 +25,17 @@ public class Transaction {
     }
 
     public void displayTransactionDetails() {
-        System.out.printf("[%s] ID: %s | Type: %s | Amt: $%.2f | Balance: $%.2f%n",
-                timestamp, transactionId, type, amount, balanceAfter);
+        System.out.printf("[%s] ID: %s | Type: %s | Amt: %s | Balance: %s%n",
+                timestamp, transactionId, type, InputValidator.formatAmount(amount), InputValidator.formatAmount(balanceAfter));
         System.out.println("\nTRANSACTION CONFIRMATION     ");
         System.out.println("---------------------------------");
-        System.out.printf("Transaction ID: %s", transactionId);
-        System.out.printf("Account: %s", accountNumber);
-        System.out.printf("Type: %s", type);
-        System.out.printf("Amount: %.2f", amount);
-        System.out.printf("Previous Balance: %.2f", balanceAfter);
-        System.out.printf("New Balance: %.2f", balanceAfter + amount);
-        System.out.printf("Date/Time: %s", timestamp);
+        System.out.printf("Transaction ID: %s%n", transactionId);
+        System.out.printf("Account: %s%n", accountNumber);
+        System.out.printf("Type: %s%n", type);
+        System.out.printf("Amount: %s%n", InputValidator.formatAmount(amount));
+        System.out.printf("Previous Balance: %s%n", InputValidator.formatAmount(balanceAfter));
+        System.out.printf("New Balance: %s%n", InputValidator.formatAmount(balanceAfter + amount));
+        System.out.printf("Date/Time: %s%n", timestamp);
         System.out.println("---------------------------------");
     }
 

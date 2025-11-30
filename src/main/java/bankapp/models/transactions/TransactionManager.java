@@ -1,6 +1,7 @@
 package main.java.bankapp.models.transactions;
 
 import main.java.bankapp.models.accounts.Account;
+import main.java.bankapp.utils.InputValidator;
 
 public class TransactionManager {
     private Transaction[] transactions = new Transaction[200];
@@ -19,7 +20,7 @@ public class TransactionManager {
         if (account != null) {
             System.out.printf("\nAccount: %s - %s%n", account.getAccountNumber(), account.getCustomer().getName());
             System.out.printf("Account Type: %s%n", account.getAccountType());
-            System.out.printf("Current Balance: $%.2f%n", account.getBalance());
+            System.out.printf("Current Balance: %s%n", InputValidator.formatAmount(account.getBalance()));
         } else {
             System.out.printf("\nAccount: %s%n", accountNumber);
         }
@@ -61,7 +62,8 @@ public class TransactionManager {
             if (transaction.getAccountNumber().equals(accountNumber)) {
                 txnTotal++;
 
-                String amountStr = String.format("%+.2f", transaction.getAmount());
+                // Format amount with sign for display
+                String amountStr = (transaction.getAmount() >= 0 ? "+" : "") + InputValidator.formatAmount(Math.abs(transaction.getAmount()));
 
                 // Sum totals
                 if (transaction.getType().equalsIgnoreCase("DEPOSIT")) {
@@ -71,21 +73,21 @@ public class TransactionManager {
                 }
 
                 // Print each row
-                System.out.printf("%-8s | %-20s | %-10s | $%-10s | $%.2f%n",
+                System.out.printf("%-8s | %-20s | %-10s | %-15s | %s%n",
                         transaction.getTransactionID(),
                         transaction.getDateTime(),
                         transaction.getType().toUpperCase(),
                         amountStr,
-                        transaction.getBalance());
+                        InputValidator.formatAmount(transaction.getBalance()));
             }
         }
 
         System.out.println("------------------------------------------------------------------------");
         System.out.println();
         System.out.printf("Total Transactions: %d%n", txnTotal);
-        System.out.printf("Total Deposits: $%.2f%n", deposits);
-        System.out.printf("Total Withdrawals: $%.2f%n", withdrawals);
-        System.out.printf("Net Change: %+.2f%n", (deposits - withdrawals));
+        System.out.printf("Total Deposits: %s%n", InputValidator.formatAmount(deposits));
+        System.out.printf("Total Withdrawals: %s%n", InputValidator.formatAmount(withdrawals));
+        System.out.printf("Net Change: %s%s%n", (deposits - withdrawals >= 0 ? "+" : ""), InputValidator.formatAmount(Math.abs(deposits - withdrawals)));
         System.out.println();
     }
 

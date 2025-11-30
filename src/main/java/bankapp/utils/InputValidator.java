@@ -1,8 +1,11 @@
 package main.java.bankapp.utils;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class InputValidator {
     private static Scanner scanner = new Scanner(System.in);
+    private static final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US);
 
     public static String getString(String prompt) {
         System.out.print(prompt + ": ");
@@ -54,19 +57,21 @@ public class InputValidator {
     /**
      * Gets a positive double value.
      * Continues prompting until a valid positive number is entered.
+     * Accepts formats like: 2694, 2,694, $2,694, etc.
      */
     public static double getDoublePositive(String prompt) {
         while (true) {
             try {
                 System.out.print(prompt + ": ");
-                double value = Double.parseDouble(scanner.nextLine().trim());
+                String input = scanner.nextLine();
+                double value = parseAmount(input);
                 if (value > 0) {
                     return value;
                 } else {
                     System.out.println("Invalid amount. Amount must be greater than 0. Please try again.");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Invalid number. Please enter a valid amount.");
+                System.out.println("Invalid number. Please enter a valid amount (e.g., 2694, 2,694, or $2,694).");
             }
         }
     }
@@ -74,19 +79,21 @@ public class InputValidator {
     /**
      * Gets a double value that is at least a minimum value.
      * Continues prompting until a valid number >= min is entered.
+     * Accepts formats like: 2694, 2,694, $2,694, etc.
      */
     public static double getDoubleMin(String prompt, double min) {
         while (true) {
             try {
                 System.out.print(prompt + ": ");
-                double value = Double.parseDouble(scanner.nextLine().trim());
+                String input = scanner.nextLine();
+                double value = parseAmount(input);
                 if (value >= min) {
                     return value;
                 } else {
-                    System.out.printf("Invalid amount. Minimum amount is $%.2f. Please try again.%n", min);
+                    System.out.printf("Invalid amount. Minimum amount is %s. Please try again.%n", formatAmount(min));
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Invalid number. Please enter a valid amount.");
+                System.out.println("Invalid number. Please enter a valid amount (e.g., 2694, 2,694, or $2,694).");
             }
         }
     }
@@ -125,5 +132,38 @@ public class InputValidator {
                 System.out.println("Invalid integer. Please enter a valid number.");
             }
         }
+    }
+
+    /**
+     * Parses an amount string that may contain dollar signs, commas, or be a plain number.
+     * Examples: "2694", "2,694", "$2,694", "$2694" all work.
+     * 
+     * @param input The input string to parse
+     * @return The parsed double value
+     * @throws NumberFormatException if the input cannot be parsed to a valid number
+     */
+    public static double parseAmount(String input) throws NumberFormatException {
+        if (input == null || input.trim().isEmpty()) {
+            throw new NumberFormatException("Empty input");
+        }
+        
+        // Remove dollar signs, spaces, and commas
+        String cleaned = input.trim()
+                .replace("$", "")
+                .replace(",", "")
+                .replace(" ", "");
+        
+        return Double.parseDouble(cleaned);
+    }
+
+    /**
+     * Formats a double amount as currency with dollar sign and comma separators.
+     * Example: 2694.5 -> "$2,694.50"
+     * 
+     * @param amount The amount to format
+     * @return Formatted string like "$2,694.50"
+     */
+    public static String formatAmount(double amount) {
+        return currencyFormatter.format(amount);
     }
 }
