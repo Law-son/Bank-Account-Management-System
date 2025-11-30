@@ -38,7 +38,7 @@ public class AccountManager {
                     System.out.printf("Account Type: %s%n", account.getAccountType());
                     System.out.printf("Initial Balance: %s%n", InputValidator.formatAmount(account.getBalance()));
                     System.out.printf("Overdrift Limit: %s%n", InputValidator.formatAmount(checkingAccount.getOverdraftLimit()));
-                    System.out.printf("Monthly Fee: %s WAIVED - Premium Customer%n", InputValidator.formatAmount(0.0));
+                    System.out.printf("Monthly Fee: %s (WAIVED - Premium Customer)%n", InputValidator.formatAmount(0.0));
                     System.out.printf("Status: %s%n\n", account.getStatus());
                 }
             }
@@ -65,7 +65,7 @@ public class AccountManager {
             System.out.println("No accounts found.");
             return;
         }
-        System.out.println("ACCOUNT LISTING");
+        System.out.println("\nACCOUNT LISTING");
         System.out.println("-------------------------------------------------------------------------------");
         System.out.printf(" ACC NO | %-18s | %-10s | %-15s | %s%n",
                 "CUSTOMER NAME", "TYPE", "BALANCE", "STATUS");
