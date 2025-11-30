@@ -23,9 +23,9 @@ public class SavingsAccount extends Account {
 
     @Override
     public void displayAccountDetails() {
-        System.out.printf(" %s | %-18s | Savings    | %-15s | Active%n",
-                getAccountNumber(), getCustomer().getName(), InputValidator.formatAmount(balance));
-        System.out.println("        |                    | Interest Rate: 3.5% | Min Balance: " + InputValidator.formatAmount(500.0));
+        System.out.printf(" %s | %-18s | Savings    | %-15s | %s%n",
+                getAccountNumber(), getCustomer().getName(), InputValidator.formatAmount(balance), getStatus());
+        System.out.println("        |                    | Interest Rate: " + interestRate + "% | Min Balance: " + InputValidator.formatAmount(minimumBalance));
         System.out.println("-------------------------------------------------------------------------------");
     }
 
@@ -35,7 +35,6 @@ public class SavingsAccount extends Account {
         return "Savings";
     }
 
-    public double calculateInterest() {
-        return balance * (interestRate / 100);
-    }
+    public double getInterestRate() { return interestRate; }
+    public double getMinimumBalance() { return minimumBalance; }
 }

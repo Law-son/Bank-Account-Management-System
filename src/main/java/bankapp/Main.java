@@ -96,14 +96,21 @@ public class Main implements Transactable {
         }
 
         // Select Account Type
+        // Create temporary instances to get default values for display
+        SavingsAccount tempSavings = new SavingsAccount(customer, 0);
+        CheckingAccount tempChecking = new CheckingAccount(customer, 0);
+        
         System.out.println("\nAccount type:                      ");
-        System.out.println("1. Savings Account (Interest: 3.5%, Min Balance: $500)");
-        System.out.println("2. Checking Account (Overdrift: $1,000, Monthly Fee: $10)\n");
+        System.out.printf("1. Savings Account (Interest: %.1f%%, Min Balance: %s)%n", 
+                tempSavings.getInterestRate(), InputValidator.formatAmount(tempSavings.getMinimumBalance()));
+        System.out.printf("2. Checking Account (Overdrift: %s, Monthly Fee: %s)%n%n", 
+                InputValidator.formatAmount(tempChecking.getOverdraftLimit()), 
+                InputValidator.formatAmount(tempChecking.getMonthlyFee()));
         int accType = InputValidator.getIntInRange("Select type (1-2)", 1, 2);
         
         Account account;
         if (accType == 1) {
-            double initialDep = InputValidator.getDoubleMin("Enter initial deposit amount", 500.0);
+            double initialDep = InputValidator.getDoubleMin("Enter initial deposit amount", tempSavings.getMinimumBalance());
             account = new SavingsAccount(customer, initialDep);
         } else {
             double initialDep = InputValidator.getDoublePositive("Enter initial deposit amount");
@@ -153,18 +160,20 @@ public class Main implements Transactable {
         if (type == 2) {
             boolean canWithdraw = false;
             if (account instanceof SavingsAccount) {
-                // For SavingsAccount: balance - amount >= minimumBalance (500)
-                canWithdraw = (previousBalance - amount >= 500);
+                SavingsAccount savingsAccount = (SavingsAccount) account;
+                canWithdraw = (previousBalance - amount >= savingsAccount.getMinimumBalance());
             } else if (account instanceof CheckingAccount) {
-                // For CheckingAccount: balance - amount >= -overdraftLimit (-1000)
-                canWithdraw = (previousBalance - amount >= -1000);
+                CheckingAccount checkingAccount = (CheckingAccount) account;
+                canWithdraw = (previousBalance - amount >= -checkingAccount.getOverdraftLimit());
             }
             
             if (!canWithdraw) {
                 if (account instanceof SavingsAccount) {
-                    System.out.println("Transaction Failed: Minimum balance of " + InputValidator.formatAmount(500.0) + " must be maintained.");
+                    SavingsAccount savingsAccount = (SavingsAccount) account;
+                    System.out.println("Transaction Failed: Minimum balance of " + InputValidator.formatAmount(savingsAccount.getMinimumBalance()) + " must be maintained.");
                 } else {
-                    System.out.println("Transaction Failed: Exceeds overdraft limit of " + InputValidator.formatAmount(1000.0));
+                    CheckingAccount checkingAccount = (CheckingAccount) account;
+                    System.out.println("Transaction Failed: Exceeds overdraft limit of " + InputValidator.formatAmount(checkingAccount.getOverdraftLimit()));
                 }
                 InputValidator.getString("Press Enter to continue");
                 menuStack.pop();
@@ -189,11 +198,9 @@ public class Main implements Transactable {
         String confirmation = InputValidator.getYesNo("Confirm transaction? (Y/N)");
         
         if (confirmation.equalsIgnoreCase("Y")) {
-            // Process the transaction
             if (type == 1) {
                 account.deposit(amount);
             } else {
-                // Process withdrawal (validation already done, so this should succeed)
                 account.withdraw(amount);
             }
             
@@ -201,14 +208,11 @@ public class Main implements Transactable {
             Transaction txn = new Transaction(accNum, transactionType, amount, account.getBalance());
             transactionManager.addTransaction(txn);
             
-            // Show transaction successful message
             System.out.println("\nTransaction completed successfully!");
             
-            // Press Enter to continue
             InputValidator.getString("Press Enter to continue");
             menuStack.pop();
         } else {
-            // User didn't confirm
             InputValidator.getString("Press Enter to continue");
             menuStack.pop();
         }
@@ -236,7 +240,6 @@ public class Main implements Transactable {
             }
         }
         
-        // Account found, proceed with viewing transactions
         transactionManager.viewTransactionsByAccount(accNum, account);
         InputValidator.getString("Press Enter to continue");
         menuStack.pop();
@@ -247,15 +250,16 @@ public class Main implements Transactable {
         return false;
     }
 
+    // Method to seed initial data into the application
     private static void seedData() {
         Customer c1 = new RegularCustomer("John Doe", 30, "555-0101", "NY");
         Customer c2 = new PremiumCustomer("Jane Smith", 45, "555-0202", "CA");
 
-        accountManager.addAccount(new SavingsAccount(c1, 1000));
-        accountManager.addAccount(new SavingsAccount(c1, 2000));
-        accountManager.addAccount(new SavingsAccount(c2, 5000));
+        accountManager.addAccount(new SavingsAccount(c1, 1000), true);
+        accountManager.addAccount(new SavingsAccount(c1, 2000), true);
+        accountManager.addAccount(new SavingsAccount(c2, 5000), true);
 
-        accountManager.addAccount(new CheckingAccount(c1, 1500));
-        accountManager.addAccount(new CheckingAccount(c2, 12000));
+        accountManager.addAccount(new CheckingAccount(c1, 1500), true);
+        accountManager.addAccount(new CheckingAccount(c2, 12000), true);
     }
 }

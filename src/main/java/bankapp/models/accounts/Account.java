@@ -20,6 +20,13 @@ public abstract class Account {
     public String getAccountNumber() { return accountNumber; }
     public Customer getCustomer() { return customer; }
     public double getBalance() { return balance; }
+    public String getStatus() { 
+        // Format status for display: "ACTIVE" -> "Active"
+        if (status != null && !status.isEmpty()) {
+            return status.substring(0, 1).toUpperCase() + status.substring(1).toLowerCase();
+        }
+        return status;
+    }
 
     public void deposit(double amount) {
         if (amount > 0) {

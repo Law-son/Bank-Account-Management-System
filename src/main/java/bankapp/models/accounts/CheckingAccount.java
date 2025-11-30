@@ -23,9 +23,9 @@ public class CheckingAccount extends Account {
 
     @Override
     public void displayAccountDetails() {
-        System.out.printf(" %s | %-18s | Checking   | %-15s | Active%n",
-                getAccountNumber(), getCustomer().getName(), InputValidator.formatAmount(balance));
-        System.out.println("        |                    | Overdraft Limit: " + InputValidator.formatAmount(1000.0) + " | Monthly Fee: " + InputValidator.formatAmount(10.0));
+        System.out.printf(" %s | %-18s | Checking   | %-15s | %s%n",
+                getAccountNumber(), getCustomer().getName(), InputValidator.formatAmount(balance), getStatus());
+        System.out.println("        |                    | Overdraft Limit: " + InputValidator.formatAmount(overdraftLimit) + " | Monthly Fee: " + InputValidator.formatAmount(monthlyFee));
         System.out.println("-------------------------------------------------------------------------------");
     }
 
@@ -34,9 +34,7 @@ public class CheckingAccount extends Account {
         return "Checking";
     }
 
-    public void applyMonthlyFee() {
-        if (!getCustomer().hasWaivedFees()) {
-            balance -= monthlyFee;
-        }
-    }
+    public double getOverdraftLimit() { return overdraftLimit; }
+    public double getMonthlyFee() { return monthlyFee; }
+
 }

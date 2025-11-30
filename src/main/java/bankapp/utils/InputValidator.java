@@ -35,7 +35,7 @@ public class InputValidator {
     }
 
     /**
-     * Gets an integer within a specified range (inclusive).
+     * Gets an integer within a specified range.
      * Continues prompting until a valid integer within the range is entered.
      */
     public static int getIntInRange(String prompt, int min, int max) {
@@ -137,10 +137,6 @@ public class InputValidator {
     /**
      * Parses an amount string that may contain dollar signs, commas, or be a plain number.
      * Examples: "2694", "2,694", "$2,694", "$2694" all work.
-     * 
-     * @param input The input string to parse
-     * @return The parsed double value
-     * @throws NumberFormatException if the input cannot be parsed to a valid number
      */
     public static double parseAmount(String input) throws NumberFormatException {
         if (input == null || input.trim().isEmpty()) {
@@ -159,9 +155,6 @@ public class InputValidator {
     /**
      * Formats a double amount as currency with dollar sign and comma separators.
      * Example: 2694.5 -> "$2,694.50"
-     * 
-     * @param amount The amount to format
-     * @return Formatted string like "$2,694.50"
      */
     public static String formatAmount(double amount) {
         return currencyFormatter.format(amount);
@@ -170,9 +163,6 @@ public class InputValidator {
     /**
      * Gets a contact number in the format "+1-XXX-XXXX".
      * Continues prompting until a valid contact number is entered.
-     * 
-     * @param prompt The prompt message to display
-     * @return Valid contact number in format "+1-XXX-XXXX"
      */
     public static String getContactNumber(String prompt) {
         while (true) {

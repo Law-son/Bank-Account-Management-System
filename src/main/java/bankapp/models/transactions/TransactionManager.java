@@ -66,13 +66,13 @@ public class TransactionManager {
                 String sign = transaction.getAmount() >= 0 ? "+" : "-";
                 String formattedAmount = InputValidator.formatAmount(Math.abs(transaction.getAmount()));
                 // Remove the $ from formatAmount and add it after the sign
-                String amountStr = sign + "$" + formattedAmount.substring(1); // substring(1) removes the $ from formatAmount
+                String amountStr = sign + "$" + formattedAmount.substring(1);
 
                 // Sum totals
                 if (transaction.getType().equalsIgnoreCase("DEPOSIT")) {
                     deposits += transaction.getAmount();
                 } else if (transaction.getType().equalsIgnoreCase("WITHDRAWAL")) {
-                    withdrawals += Math.abs(transaction.getAmount());  // keep positive for summary
+                    withdrawals += Math.abs(transaction.getAmount());
                 }
 
                 // Print each row
@@ -93,5 +93,4 @@ public class TransactionManager {
         System.out.printf("Net Change: %s%s%n", (deposits - withdrawals >= 0 ? "+" : ""), InputValidator.formatAmount(Math.abs(deposits - withdrawals)));
         System.out.println();
     }
-
 }
