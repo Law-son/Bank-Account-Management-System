@@ -4,8 +4,11 @@ import main.java.bankapp.models.customers.Customer;
 import main.java.bankapp.utils.InputValidator;
 
 public class CheckingAccount extends Account {
-    private double overdraftLimit = 1000;
-    private double monthlyFee = 10;
+    private static final double DEFAULT_OVERDRAFT_LIMIT = 1000;
+    private static final double DEFAULT_MONTHLY_FEE = 10;
+    
+    private double overdraftLimit = DEFAULT_OVERDRAFT_LIMIT;
+    private double monthlyFee = DEFAULT_MONTHLY_FEE;
 
     public CheckingAccount(Customer customer, double initialDeposit) {
         super(customer, initialDeposit);
@@ -36,5 +39,9 @@ public class CheckingAccount extends Account {
 
     public double getOverdraftLimit() { return overdraftLimit; }
     public double getMonthlyFee() { return monthlyFee; }
+    
+    // Static methods to get default values without creating an instance
+    public static double getDefaultOverdraftLimit() { return DEFAULT_OVERDRAFT_LIMIT; }
+    public static double getDefaultMonthlyFee() { return DEFAULT_MONTHLY_FEE; }
 
 }

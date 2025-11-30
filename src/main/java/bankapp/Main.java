@@ -38,7 +38,7 @@ public class Main implements Transactable {
 
     // Menu
     private static void showMainMenu() {
-        System.out.println("╔══════════════════════════════════════════════════╗");
+        System.out.println("\n╔══════════════════════════════════════════════════╗");
         System.out.println("║       BANK ACCOUNT MANAGEMENT - MAIN MENU        ║");
         System.out.println("╚══════════════════════════════════════════════════╝\n");
 
@@ -95,22 +95,17 @@ public class Main implements Transactable {
             customer = new RegularCustomer(name, age, contact, address);
         }
 
-        // Select Account Type
-        // Create temporary instances to get default values for display
-        SavingsAccount tempSavings = new SavingsAccount(customer, 0);
-        CheckingAccount tempChecking = new CheckingAccount(customer, 0);
-        
         System.out.println("\nAccount type:                      ");
         System.out.printf("1. Savings Account (Interest: %.1f%%, Min Balance: %s)%n", 
-                tempSavings.getInterestRate(), InputValidator.formatAmount(tempSavings.getMinimumBalance()));
+                SavingsAccount.getDefaultInterestRate(), InputValidator.formatAmount(SavingsAccount.getDefaultMinimumBalance()));
         System.out.printf("2. Checking Account (Overdrift: %s, Monthly Fee: %s)%n%n", 
-                InputValidator.formatAmount(tempChecking.getOverdraftLimit()), 
-                InputValidator.formatAmount(tempChecking.getMonthlyFee()));
+                InputValidator.formatAmount(CheckingAccount.getDefaultOverdraftLimit()), 
+                InputValidator.formatAmount(CheckingAccount.getDefaultMonthlyFee()));
         int accType = InputValidator.getIntInRange("Select type (1-2)", 1, 2);
         
         Account account;
         if (accType == 1) {
-            double initialDep = InputValidator.getDoubleMin("Enter initial deposit amount", tempSavings.getMinimumBalance());
+            double initialDep = InputValidator.getDoubleMin("Enter initial deposit amount", SavingsAccount.getDefaultMinimumBalance());
             account = new SavingsAccount(customer, initialDep);
         } else {
             double initialDep = InputValidator.getDoublePositive("Enter initial deposit amount");
@@ -132,7 +127,7 @@ public class Main implements Transactable {
         Account account = accountManager.findAccount(accNum);
         if (account == null) {
             System.out.println("Account not found.");
-            InputValidator.getString("Press Enter to continue...");
+            InputValidator.getString("Press Enter to continue");
             menuStack.pop();
             return;
         }

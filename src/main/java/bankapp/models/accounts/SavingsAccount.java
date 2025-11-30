@@ -4,8 +4,11 @@ import main.java.bankapp.models.customers.Customer;
 import main.java.bankapp.utils.InputValidator;
 
 public class SavingsAccount extends Account {
-    private double interestRate = 3.5;
-    private double minimumBalance = 500;
+    private static final double DEFAULT_INTEREST_RATE = 3.5;
+    private static final double DEFAULT_MINIMUM_BALANCE = 500;
+    
+    private double interestRate = DEFAULT_INTEREST_RATE;
+    private double minimumBalance = DEFAULT_MINIMUM_BALANCE;
 
     public SavingsAccount(Customer customer, double initialDeposit) {
         super(customer, initialDeposit);
@@ -37,4 +40,8 @@ public class SavingsAccount extends Account {
 
     public double getInterestRate() { return interestRate; }
     public double getMinimumBalance() { return minimumBalance; }
+    
+    // Static methods to get default values without creating an instance
+    public static double getDefaultInterestRate() { return DEFAULT_INTEREST_RATE; }
+    public static double getDefaultMinimumBalance() { return DEFAULT_MINIMUM_BALANCE; }
 }

@@ -1,6 +1,8 @@
 package main.java.bankapp.managers;
 
 import main.java.bankapp.models.accounts.Account;
+import main.java.bankapp.models.accounts.CheckingAccount;
+import main.java.bankapp.models.accounts.SavingsAccount;
 import main.java.bankapp.utils.InputValidator;
 
 import java.util.Objects;
@@ -63,6 +65,7 @@ public class AccountManager {
             System.out.println("No accounts found.");
             return;
         }
+        System.out.println("ACCOUNT LISTING");
         System.out.println("-------------------------------------------------------------------------------");
         System.out.printf(" ACC NO | %-18s | %-10s | %-15s | %s%n",
                 "CUSTOMER NAME", "TYPE", "BALANCE", "STATUS");

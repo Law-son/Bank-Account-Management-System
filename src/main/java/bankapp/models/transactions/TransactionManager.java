@@ -76,7 +76,7 @@ public class TransactionManager {
                 }
 
                 // Print each row
-                System.out.printf("%-8s | %-20s | %-10s | %-15s | %s%n",
+                System.out.printf("%-8s | %-20s | %-10s | %-10s | %s%n",
                         transaction.getTransactionID(),
                         transaction.getDateTime(),
                         transaction.getType().toUpperCase(),
