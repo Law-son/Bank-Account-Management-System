@@ -48,7 +48,7 @@ public class Main implements Transactable {
         System.out.println("4. View Transaction History");
         System.out.println("5. Exit\n");
 
-        int choice = InputValidator.getInt("Enter Choice");
+        int choice = InputValidator.getIntInRange("Enter Choice", 1, 5);
 
         switch (choice) {
             case 1:
@@ -67,8 +67,6 @@ public class Main implements Transactable {
             case 5:
                 menuStack.pop();
                 break;
-            default:
-                System.out.println("Invalid option.");
         }
     }
 
@@ -80,7 +78,7 @@ public class Main implements Transactable {
         String name = InputValidator.getString("Enter customer name");
         if(name.equals("0")) { menuStack.pop(); return; }
 
-        int age = InputValidator.getInt("Enter customer age");
+        int age = InputValidator.getIntPositive("Enter customer age");
         String contact = InputValidator.getString("Enter customer contact");
         String address = InputValidator.getString("Enter customer address");
 
@@ -88,9 +86,8 @@ public class Main implements Transactable {
         System.out.println("\nCustomer type:                      ");
         System.out.println("1. Regular Customer (Standard banking services)");
         System.out.println("2. Premium Customer (Enhanced benefits, min balance $10,000)\n");
-        int customerType = InputValidator.getInt("Select type (1-2)");
+        int customerType = InputValidator.getIntInRange("Select type (1-2)", 1, 2);
 
-        // TODO: enforce validation here for other inputs aside 1 and 2
         Customer customer;
         if (customerType == 2) {
             customer = new PremiumCustomer(name, age, contact, address);
@@ -102,14 +99,14 @@ public class Main implements Transactable {
         System.out.println("\nAccount type:                      ");
         System.out.println("1. Savings Account (Interest: 3.5%, Min Balance: $500)");
         System.out.println("2. Checking Account (Overdrift: $1,000, Monthly Fee: $10)\n");
-        int accType = InputValidator.getInt("Select type (1-2)");
-        double initialDep = InputValidator.getDouble("Enter initial deposit amount");
-
+        int accType = InputValidator.getIntInRange("Select type (1-2)", 1, 2);
+        
         Account account;
         if (accType == 1) {
-            if (initialDep < 500) { System.out.println("Error: Min deposit for Savings is $500"); return; }
+            double initialDep = InputValidator.getDoubleMin("Enter initial deposit amount", 500.0);
             account = new SavingsAccount(customer, initialDep);
         } else {
+            double initialDep = InputValidator.getDoublePositive("Enter initial deposit amount");
             account = new CheckingAccount(customer, initialDep);
         }
 
@@ -143,24 +140,10 @@ public class Main implements Transactable {
         System.out.println("\nTransaction type: ");
         System.out.println("1. Deposit");
         System.out.println("2. Withdrawal\n");
-        int type = InputValidator.getInt("Select Type (1-2)");
-        
-        if (type != 1 && type != 2) {
-            System.out.println("Invalid transaction type.");
-            InputValidator.getString("Press Enter to continue...");
-            menuStack.pop();
-            return;
-        }
+        int type = InputValidator.getIntInRange("Select Type (1-2)", 1, 2);
 
         // Enter amount
-        double amount = InputValidator.getDouble("Enter Amount");
-        
-        if (amount <= 0) {
-            System.out.println("Invalid amount. Amount must be greater than 0.");
-            InputValidator.getString("Press Enter to continue...");
-            menuStack.pop();
-            return;
-        }
+        double amount = InputValidator.getDoublePositive("Enter Amount");
 
         String transactionType = (type == 1) ? "Deposit" : "Withdrawal";
         double previousBalance = account.getBalance();
@@ -203,7 +186,7 @@ public class Main implements Transactable {
         System.out.println("---------------------------------");
 
         // Ask for confirmation
-        String confirmation = InputValidator.getString("Confirm transaction? (Y/N)");
+        String confirmation = InputValidator.getYesNo("Confirm transaction? (Y/N)");
         
         if (confirmation.equalsIgnoreCase("Y")) {
             // Process the transaction
@@ -224,12 +207,8 @@ public class Main implements Transactable {
             // Press Enter to continue
             InputValidator.getString("Press Enter to continue");
             menuStack.pop();
-        } else if (confirmation.equalsIgnoreCase("N")) {
-            // User didn't confirm
-            InputValidator.getString("Press Enter to continue");
-            menuStack.pop();
         } else {
-            System.out.println("Invalid input. Please enter Y or N.");
+            // User didn't confirm
             InputValidator.getString("Press Enter to continue");
             menuStack.pop();
         }
