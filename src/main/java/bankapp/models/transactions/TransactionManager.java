@@ -29,8 +29,8 @@ public class TransactionManager {
         // Display in reverse chronological order (Newest first)
         for (int i = transactionCount - 1; i >= 0; i--) {
             if (transactions[i].getAccountNumber().equals(accountNumber)) {
-                transactions[i].displayTransactionDetails();
                 found = true;
+                break;
             }
         }
 
@@ -46,16 +46,47 @@ public class TransactionManager {
     private void printSummary(String accountNumber) {
         double deposits = 0;
         double withdrawals = 0;
+        int txnTotal = 0;
+
+        System.out.println();
+        System.out.println("TRANSACTION HISTORY");
+        System.out.println("------------------------------------------------------------------------");
+        System.out.printf("%-8s | %-20s | %-10s | %-10s | %-10s%n",
+                "TXN ID", "DATE/TIME", "TYPE", "AMOUNT", "BALANCE");
+        System.out.println("------------------------------------------------------------------------");
 
         for (int i = 0; i < transactionCount; i++) {
-            if (transactions[i].getAccountNumber().equals(accountNumber)) {
-                if (transactions[i].getType().equalsIgnoreCase("Deposit")) {
-                    deposits += transactions[i].getAmount();
-                } else {
-                    withdrawals += transactions[i].getAmount();
+            Transaction transaction = transactions[i];
+
+            if (transaction.getAccountNumber().equals(accountNumber)) {
+                txnTotal++;
+
+                String amountStr = String.format("%+.2f", transaction.getAmount());
+
+                // Sum totals
+                if (transaction.getType().equalsIgnoreCase("DEPOSIT")) {
+                    deposits += transaction.getAmount();
+                } else if (transaction.getType().equalsIgnoreCase("WITHDRAWAL")) {
+                    withdrawals += Math.abs(transaction.getAmount());  // keep positive for summary
                 }
+
+                // Print each row
+                System.out.printf("%-8s | %-20s | %-10s | $%-10s | $%.2f%n",
+                        transaction.getTransactionID(),
+                        transaction.getDateTime(),
+                        transaction.getType().toUpperCase(),
+                        amountStr,
+                        transaction.getBalance());
             }
         }
-        System.out.println("Summary: Total Deposits: $" + deposits + " | Total Withdrawals: $" + withdrawals);
+
+        System.out.println("------------------------------------------------------------------------");
+        System.out.println();
+        System.out.printf("Total Transactions: %d%n", txnTotal);
+        System.out.printf("Total Deposits: $%.2f%n", deposits);
+        System.out.printf("Total Withdrawals: $%.2f%n", withdrawals);
+        System.out.printf("Net Change: %+.2f%n", (deposits - withdrawals));
+        System.out.println();
     }
+
 }

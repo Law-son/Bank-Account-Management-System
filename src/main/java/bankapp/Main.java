@@ -32,7 +32,8 @@ public class Main implements Transactable {
             menuStack.peek().run();
         }
 
-        System.out.println("Exiting Application. Goodbye!");
+        System.out.println("Thank you for using Bank Account Management System!");
+        System.out.println("Goodbye!");
     }
 
     // Menu
@@ -182,7 +183,7 @@ public class Main implements Transactable {
                 } else {
                     System.out.println("Transaction Failed: Exceeds overdraft limit of $1000.00");
                 }
-                InputValidator.getString("Press Enter to continue...");
+                InputValidator.getString("Press Enter to continue");
                 menuStack.pop();
                 return;
             }

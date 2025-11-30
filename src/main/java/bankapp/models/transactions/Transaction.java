@@ -41,4 +41,7 @@ public class Transaction {
     public String getAccountNumber() { return accountNumber; }
     public String getType() { return type; }
     public double getAmount() { return amount; }
+    public String getTransactionID() { return transactionId; }
+    public String getDateTime() { return timestamp; }
+    public double getBalance() { return balanceAfter; }
 }
