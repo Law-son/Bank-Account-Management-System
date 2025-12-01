@@ -1,8 +1,9 @@
 package main.java.bankapp.models.accounts;
 
 import main.java.bankapp.models.customers.Customer;
+import main.java.bankapp.models.transactions.Transactable;
 
-public abstract class Account {
+public abstract class Account implements Transactable {
     private String accountNumber;
     private Customer customer;
     protected double balance;
@@ -11,7 +12,7 @@ public abstract class Account {
     protected static int accountCounter = 0;
 
     public Account(Customer customer, double initialDeposit) {
-        this.accountNumber = "ACC" + String.format("%03d", ++accountCounter); // [cite: 8]
+        this.accountNumber = "ACC" + String.format("%03d", ++accountCounter);
         this.customer = customer;
         this.balance = initialDeposit;
         this.status = "ACTIVE";
@@ -37,4 +38,15 @@ public abstract class Account {
     public abstract boolean withdraw(double amount);
     public abstract void displayAccountDetails();
     public abstract String getAccountType();
+
+    @Override
+    public boolean processTransaction(double amount, String type) {
+        if (type.equalsIgnoreCase("Deposit")) {
+            deposit(amount);
+            return true;
+        } else if (type.equalsIgnoreCase("Withdrawal")) {
+            return withdraw(amount);
+        }
+        return false;
+    }
 }

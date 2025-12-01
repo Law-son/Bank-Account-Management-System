@@ -7,14 +7,13 @@ import main.java.bankapp.models.accounts.SavingsAccount;
 import main.java.bankapp.models.customers.Customer;
 import main.java.bankapp.models.customers.PremiumCustomer;
 import main.java.bankapp.models.customers.RegularCustomer;
-import main.java.bankapp.models.transactions.Transactable;
 import main.java.bankapp.models.transactions.Transaction;
 import main.java.bankapp.models.transactions.TransactionManager;
 import main.java.bankapp.utils.InputValidator;
 
 import java.util.Stack;
 
-public class Main implements Transactable {
+public class Main {
     private static AccountManager accountManager = new AccountManager();
     private static TransactionManager transactionManager = new TransactionManager();
 
@@ -179,31 +178,24 @@ public class Main implements Transactable {
             newBalance = previousBalance + amount;
         }
 
-        // Show transaction confirmation details
-        System.out.println("\nTRANSACTION CONFIRMATION");
-        System.out.println("---------------------------------");
-        System.out.printf("Account: %s%n", accNum);
-        System.out.printf("Type: %s%n", transactionType);
-        System.out.printf("Amount: %s%n", InputValidator.formatAmount(amount));
-        System.out.printf("Previous Balance: %s%n", InputValidator.formatAmount(previousBalance));
-        System.out.printf("New Balance: %s%n", InputValidator.formatAmount(newBalance));
-        System.out.println("---------------------------------");
+        // Create transaction object for confirmation display
+        Transaction confirmationTxn = new Transaction(accNum, transactionType, amount, newBalance);
+        confirmationTxn.displayTransactionDetails();
 
-        // Ask for confirmation
         String confirmation = InputValidator.getYesNo("Confirm transaction? (Y/N)");
         
         if (confirmation.equalsIgnoreCase("Y")) {
-            if (type == 1) {
-                account.deposit(amount);
+            // Use processTransaction method from Transactable interface
+            boolean success = account.processTransaction(amount, transactionType);
+            
+            if (success) {
+                // Add transaction details (reuse the same transaction object)
+                transactionManager.addTransaction(confirmationTxn);
+                
+                System.out.println("\nTransaction completed successfully!");
             } else {
-                account.withdraw(amount);
+                System.out.println("\nTransaction failed!");
             }
-            
-            // Add transaction details
-            Transaction txn = new Transaction(accNum, transactionType, amount, account.getBalance());
-            transactionManager.addTransaction(txn);
-            
-            System.out.println("\nTransaction completed successfully!");
             
             InputValidator.getString("Press Enter to continue");
             menuStack.pop();
@@ -238,11 +230,6 @@ public class Main implements Transactable {
         transactionManager.viewTransactionsByAccount(accNum, account);
         InputValidator.getString("Press Enter to continue");
         menuStack.pop();
-    }
-
-    @Override
-    public boolean processTransaction(double amount, String type) {
-        return false;
     }
 
     // Method to seed initial data into the application

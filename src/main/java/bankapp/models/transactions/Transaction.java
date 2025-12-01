@@ -33,8 +33,9 @@ public class Transaction {
         System.out.printf("Account: %s%n", accountNumber);
         System.out.printf("Type: %s%n", type);
         System.out.printf("Amount: %s%n", InputValidator.formatAmount(amount));
-        System.out.printf("Previous Balance: %s%n", InputValidator.formatAmount(balanceAfter));
-        System.out.printf("New Balance: %s%n", InputValidator.formatAmount(balanceAfter + amount));
+        double previousBalance = type.equals("Deposit") ? balanceAfter - amount : balanceAfter + amount;
+        System.out.printf("Previous Balance: %s%n", InputValidator.formatAmount(previousBalance));
+        System.out.printf("New Balance: %s%n", InputValidator.formatAmount(balanceAfter));
         System.out.printf("Date/Time: %s%n", timestamp);
         System.out.println("---------------------------------");
     }

@@ -38,9 +38,7 @@ public class CheckingAccount extends Account {
     }
 
     public double getOverdraftLimit() { return overdraftLimit; }
-    public double getMonthlyFee() { return monthlyFee; }
-    
-    // Static methods to get default values without creating an instance
+
     public static double getDefaultOverdraftLimit() { return DEFAULT_OVERDRAFT_LIMIT; }
     public static double getDefaultMonthlyFee() { return DEFAULT_MONTHLY_FEE; }
 

@@ -41,7 +41,6 @@ public class SavingsAccount extends Account {
     public double getInterestRate() { return interestRate; }
     public double getMinimumBalance() { return minimumBalance; }
     
-    // Static methods to get default values without creating an instance
     public static double getDefaultInterestRate() { return DEFAULT_INTEREST_RATE; }
     public static double getDefaultMinimumBalance() { return DEFAULT_MINIMUM_BALANCE; }
 }

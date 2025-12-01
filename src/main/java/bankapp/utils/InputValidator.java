@@ -12,28 +12,6 @@ public class InputValidator {
         return scanner.nextLine().trim();
     }
 
-    public static double getDouble(String prompt) {
-        while (true) {
-            try {
-                System.out.print(prompt + ": ");
-                return Double.parseDouble(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid number. Please try again.");
-            }
-        }
-    }
-
-    public static int getInt(String prompt) {
-        while (true) {
-            try {
-                System.out.print(prompt + ": ");
-                return Integer.parseInt(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid integer.");
-            }
-        }
-    }
-
     /**
      * Gets an integer within a specified range.
      * Continues prompting until a valid integer within the range is entered.
