@@ -1,8 +1,5 @@
-package main.java.bankapp.managers;
+package main.java.bankapp.models.accounts;
 
-import main.java.bankapp.models.accounts.Account;
-import main.java.bankapp.models.accounts.CheckingAccount;
-import main.java.bankapp.models.accounts.SavingsAccount;
 import main.java.bankapp.utils.InputValidator;
 
 import java.util.Objects;

@@ -1,7 +1,7 @@
 package main.java.bankapp;
 
-import main.java.bankapp.managers.AccountManager;
 import main.java.bankapp.models.accounts.Account;
+import main.java.bankapp.models.accounts.AccountManager;
 import main.java.bankapp.models.accounts.CheckingAccount;
 import main.java.bankapp.models.accounts.SavingsAccount;
 import main.java.bankapp.models.customers.Customer;

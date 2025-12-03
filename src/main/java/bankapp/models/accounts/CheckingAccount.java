@@ -6,7 +6,7 @@ import main.java.bankapp.utils.InputValidator;
 public class CheckingAccount extends Account {
     private static final double DEFAULT_OVERDRAFT_LIMIT = 1000;
     private static final double DEFAULT_MONTHLY_FEE = 10;
-    
+
     private double overdraftLimit = DEFAULT_OVERDRAFT_LIMIT;
     private double monthlyFee = DEFAULT_MONTHLY_FEE;
 
@@ -37,9 +37,16 @@ public class CheckingAccount extends Account {
         return "Checking";
     }
 
-    public double getOverdraftLimit() { return overdraftLimit; }
+    public double getOverdraftLimit() {
+        return overdraftLimit;
+    }
 
-    public static double getDefaultOverdraftLimit() { return DEFAULT_OVERDRAFT_LIMIT; }
-    public static double getDefaultMonthlyFee() { return DEFAULT_MONTHLY_FEE; }
+    public static double getDefaultOverdraftLimit() {
+        return DEFAULT_OVERDRAFT_LIMIT;
+    }
+
+    public static double getDefaultMonthlyFee() {
+        return DEFAULT_MONTHLY_FEE;
+    }
 
 }
