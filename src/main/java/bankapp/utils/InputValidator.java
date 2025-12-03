@@ -13,6 +13,25 @@ public class InputValidator {
     }
 
     /**
+     * Gets name from the user while excluding numbers and symbols, except '-'.
+     * Continues prompting until a valid integer within the range is entered.
+     */
+    public static String getName(String prompt) {
+        String input;
+        while (true) {
+            System.out.print(prompt + ": ");
+            input = scanner.nextLine().trim();
+
+            // Regex allows letters (any case), spaces, and single hyphens between letters
+            if (input.matches("[A-Za-z]+([ '-][A-Za-z]+)*")) {
+                return input;
+            } else {
+                System.out.println("Invalid input. Please use letters only. Hyphens and spaces are allowed (e.g., Anne-Marie).");
+            }
+        }
+    }
+
+    /**
      * Gets an integer within a specified range.
      * Continues prompting until a valid integer within the range is entered.
      */

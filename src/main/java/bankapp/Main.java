@@ -74,7 +74,7 @@ public class Main {
         System.out.println("--------------------------");
         System.out.println("Enter 0 to go back.\n");
 
-        String name = InputValidator.getString("Enter customer name");
+        String name = InputValidator.getName("Enter customer name");
         if(name.equals("0")) { menuStack.pop(); return; }
 
         int age = InputValidator.getIntPositive("Enter customer age");
