@@ -112,6 +112,16 @@ public class Main {
         }
 
         accountManager.addAccount(account);
+        
+        // Create and store transaction for initial deposit
+        Transaction initialDepositTransaction = new Transaction(
+            account.getAccountNumber(), 
+            "Deposit", 
+            account.getBalance(), 
+            account.getBalance()
+        );
+        transactionManager.addTransaction(initialDepositTransaction);
+        
         menuStack.pop(); // Return to previous menu after success
     }
 
@@ -237,11 +247,24 @@ public class Main {
         Customer c1 = new RegularCustomer("John Doe", 30, "555-0101", "NY");
         Customer c2 = new PremiumCustomer("Jane Smith", 45, "555-0202", "CA");
 
-        accountManager.addAccount(new SavingsAccount(c1, 1000), true);
-        accountManager.addAccount(new SavingsAccount(c1, 2000), true);
-        accountManager.addAccount(new SavingsAccount(c2, 5000), true);
+        Account acc1 = new SavingsAccount(c1, 1000);
+        accountManager.addAccount(acc1, true);
+        transactionManager.addTransaction(new Transaction(acc1.getAccountNumber(), "Deposit", 1000, 1000));
 
-        accountManager.addAccount(new CheckingAccount(c1, 1500), true);
-        accountManager.addAccount(new CheckingAccount(c2, 12000), true);
+        Account acc2 = new SavingsAccount(c1, 2000);
+        accountManager.addAccount(acc2, true);
+        transactionManager.addTransaction(new Transaction(acc2.getAccountNumber(), "Deposit", 2000, 2000));
+
+        Account acc3 = new SavingsAccount(c2, 5000);
+        accountManager.addAccount(acc3, true);
+        transactionManager.addTransaction(new Transaction(acc3.getAccountNumber(), "Deposit", 5000, 5000));
+
+        Account acc4 = new CheckingAccount(c1, 1500);
+        accountManager.addAccount(acc4, true);
+        transactionManager.addTransaction(new Transaction(acc4.getAccountNumber(), "Deposit", 1500, 1500));
+
+        Account acc5 = new CheckingAccount(c2, 12000);
+        accountManager.addAccount(acc5, true);
+        transactionManager.addTransaction(new Transaction(acc5.getAccountNumber(), "Deposit", 12000, 12000));
     }
 }

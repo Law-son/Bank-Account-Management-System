@@ -29,10 +29,11 @@ public abstract class Account implements Transactable {
         return status;
     }
 
+    // All subclasses use the same deposit logic unlike withdraw
+    // and the other abstract methods, hence I decided to keep
+    // this as a concrete method
     public void deposit(double amount) {
-        if (amount > 0) {
             this.balance += amount;
-        }
     }
 
     public abstract boolean withdraw(double amount);
