@@ -1,6 +1,9 @@
-package org.example.models.accounts;
+package org.example.services;
 
-import org.example.utils.InputValidator;
+import org.example.models.Account;
+import org.example.models.CheckingAccount;
+import org.example.models.SavingsAccount;
+import org.example.utils.ValidationUtils;
 
 public class AccountManager {
     private Account[] accounts = new Account[50];
@@ -21,9 +24,9 @@ public class AccountManager {
                     System.out.printf("Account Number: %s%n", account.getAccountNumber());
                     System.out.printf("Customer: %s (%s)%n", account.getCustomer().getName(), account.getCustomer().getCustomerType());
                     System.out.printf("Account Type: %s%n", account.getAccountType());
-                    System.out.printf("Initial Balance: %s%n", InputValidator.formatAmount(account.getBalance()));
+                    System.out.printf("Initial Balance: %s%n", ValidationUtils.formatAmount(account.getBalance()));
                     System.out.printf("Interest Rate: %.1f%%%n", savingsAccount.getInterestRate());
-                    System.out.printf("Minimum Balance: %s%n", InputValidator.formatAmount(savingsAccount.getMinimumBalance()));
+                    System.out.printf("Minimum Balance: %s%n", ValidationUtils.formatAmount(savingsAccount.getMinimumBalance()));
                     System.out.printf("Status: %s%n\n", account.getStatus());
                 } else if (account instanceof CheckingAccount) {
                     CheckingAccount checkingAccount = (CheckingAccount) account;
@@ -31,9 +34,9 @@ public class AccountManager {
                     System.out.printf("Account Number: %s%n", account.getAccountNumber());
                     System.out.printf("Customer: %s (%s)%n", account.getCustomer().getName(), account.getCustomer().getCustomerType());
                     System.out.printf("Account Type: %s%n", account.getAccountType());
-                    System.out.printf("Initial Balance: %s%n", InputValidator.formatAmount(account.getBalance()));
-                    System.out.printf("Overdrift Limit: %s%n", InputValidator.formatAmount(checkingAccount.getOverdraftLimit()));
-                    System.out.printf("Monthly Fee: %s (WAIVED - Premium Customer)%n", InputValidator.formatAmount(0.0));
+                    System.out.printf("Initial Balance: %s%n", ValidationUtils.formatAmount(account.getBalance()));
+                    System.out.printf("Overdrift Limit: %s%n", ValidationUtils.formatAmount(checkingAccount.getOverdraftLimit()));
+                    System.out.printf("Monthly Fee: %s (WAIVED - Premium Customer)%n", ValidationUtils.formatAmount(0.0));
                     System.out.printf("Status: %s%n\n", account.getStatus());
                 }
             }
@@ -69,7 +72,7 @@ public class AccountManager {
             accounts[i].displayAccountDetails();
         }
         System.out.println("Total Accounts: " + accountCount);
-        System.out.println("Total Bank Balance: " + InputValidator.formatAmount(getTotalBalance()));
+        System.out.println("Total Bank Balance: " + ValidationUtils.formatAmount(getTotalBalance()));
     }
 
     public double getTotalBalance() {
@@ -80,3 +83,4 @@ public class AccountManager {
         return total;
     }
 }
+

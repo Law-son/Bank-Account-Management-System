@@ -1,4 +1,4 @@
-package org.example.models.customers;
+package org.example.models;
 
 public class RegularCustomer extends Customer {
 
@@ -16,3 +16,4 @@ public class RegularCustomer extends Customer {
         return "Regular";
     }
 }
+

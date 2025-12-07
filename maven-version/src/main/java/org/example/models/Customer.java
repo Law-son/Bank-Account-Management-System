@@ -1,4 +1,4 @@
-package org.example.models.customers;
+package org.example.models;
 
 public abstract class Customer {
     private String customerId;
@@ -28,3 +28,4 @@ public abstract class Customer {
         return false;
     }
 }
+

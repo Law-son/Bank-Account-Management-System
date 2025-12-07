@@ -1,7 +1,7 @@
-package org.example.models.accounts;
+package org.example.models;
 
-import org.example.models.customers.Customer;
-import org.example.utils.InputValidator;
+import org.example.models.exceptions.OverdraftExceededException;
+import org.example.utils.ValidationUtils;
 
 public class CheckingAccount extends Account {
     private static final double DEFAULT_OVERDRAFT_LIMIT = 1000;
@@ -15,20 +15,19 @@ public class CheckingAccount extends Account {
     }
 
     @Override
-    public boolean withdraw(double amount) {
+    public boolean withdraw(double amount) throws OverdraftExceededException {
         if (balance - amount >= -overdraftLimit) {
             balance -= amount;
             return true;
         }
-        System.out.println("Transaction Failed: Exceeds overdraft limit of " + InputValidator.formatAmount(overdraftLimit));
-        return false;
+        throw new OverdraftExceededException("Transaction Failed: Exceeds overdraft limit of " + ValidationUtils.formatAmount(overdraftLimit));
     }
 
     @Override
     public void displayAccountDetails() {
         System.out.printf(" %s | %-18s | Checking   | %-15s | %s%n",
-                getAccountNumber(), getCustomer().getName(), InputValidator.formatAmount(balance), getStatus());
-        System.out.println("        |                    | Overdraft Limit: " + InputValidator.formatAmount(overdraftLimit) + " | Monthly Fee: " + InputValidator.formatAmount(monthlyFee));
+                getAccountNumber(), getCustomer().getName(), ValidationUtils.formatAmount(balance), getStatus());
+        System.out.println("        |                    | Overdraft Limit: " + ValidationUtils.formatAmount(overdraftLimit) + " | Monthly Fee: " + ValidationUtils.formatAmount(monthlyFee));
         System.out.println("-------------------------------------------------------------------------------");
     }
 
@@ -50,3 +49,4 @@ public class CheckingAccount extends Account {
     }
 
 }
+

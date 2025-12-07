@@ -1,8 +1,7 @@
-package org.example.models.accounts;
+package org.example.models;
 
-
-import org.example.models.customers.Customer;
-import org.example.utils.InputValidator;
+import org.example.models.exceptions.MinimumBalanceException;
+import org.example.utils.ValidationUtils;
 
 public class SavingsAccount extends Account {
     private static final double DEFAULT_INTEREST_RATE = 3.5;
@@ -16,20 +15,19 @@ public class SavingsAccount extends Account {
     }
 
     @Override
-    public boolean withdraw(double amount) {
+    public boolean withdraw(double amount) throws MinimumBalanceException {
         if (balance - amount >= minimumBalance) {
             balance -= amount;
             return true;
         }
-        System.out.println("Transaction Failed: Minimum balance of " + InputValidator.formatAmount(minimumBalance) + " must be maintained.");
-        return false;
+        throw new MinimumBalanceException("Transaction Failed: Minimum balance of " + ValidationUtils.formatAmount(minimumBalance) + " must be maintained.");
     }
 
     @Override
     public void displayAccountDetails() {
         System.out.printf(" %s | %-18s | Savings    | %-15s | %s%n",
-                getAccountNumber(), getCustomer().getName(), InputValidator.formatAmount(balance), getStatus());
-        System.out.println("        |                    | Interest Rate: " + interestRate + "% | Min Balance: " + InputValidator.formatAmount(minimumBalance));
+                getAccountNumber(), getCustomer().getName(), ValidationUtils.formatAmount(balance), getStatus());
+        System.out.println("        |                    | Interest Rate: " + interestRate + "% | Min Balance: " + ValidationUtils.formatAmount(minimumBalance));
         System.out.println("-------------------------------------------------------------------------------");
     }
 
@@ -45,3 +43,4 @@ public class SavingsAccount extends Account {
     public static double getDefaultInterestRate() { return DEFAULT_INTEREST_RATE; }
     public static double getDefaultMinimumBalance() { return DEFAULT_MINIMUM_BALANCE; }
 }
+

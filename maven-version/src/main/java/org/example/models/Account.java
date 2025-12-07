@@ -1,8 +1,10 @@
-package org.example.models.accounts;
+package org.example.models;
 
-
-import org.example.models.customers.Customer;
-import org.example.models.transactions.Transactable;
+import org.example.models.exceptions.InvalidAmountException;
+import org.example.models.exceptions.InsufficientFundsException;
+import org.example.models.exceptions.MinimumBalanceException;
+import org.example.models.exceptions.OverdraftExceededException;
+import org.example.models.interfaces.Transactable;
 
 public abstract class Account implements Transactable {
     private String accountNumber;
@@ -33,22 +35,31 @@ public abstract class Account implements Transactable {
     // All subclasses use the same deposit logic unlike withdraw
     // and the other abstract methods, hence I decided to keep
     // this as a concrete method
-    public void deposit(double amount) {
-            this.balance += amount;
+    public void deposit(double amount) throws InvalidAmountException {
+        if (amount <= 0) {
+            throw new InvalidAmountException("Deposit amount must be greater than zero.");
+        }
+        this.balance += amount;
     }
 
-    public abstract boolean withdraw(double amount);
+    public abstract boolean withdraw(double amount) throws InsufficientFundsException, MinimumBalanceException, OverdraftExceededException;
     public abstract void displayAccountDetails();
     public abstract String getAccountType();
 
     @Override
     public boolean processTransaction(double amount, String type) {
-        if (type.equalsIgnoreCase("Deposit")) {
-            deposit(amount);
-            return true;
-        } else if (type.equalsIgnoreCase("Withdrawal")) {
-            return withdraw(amount);
+        try {
+            if (type.equalsIgnoreCase("Deposit")) {
+                deposit(amount);
+                return true;
+            } else if (type.equalsIgnoreCase("Withdrawal")) {
+                return withdraw(amount);
+            }
+        } catch (InvalidAmountException | InsufficientFundsException | MinimumBalanceException | OverdraftExceededException e) {
+            System.out.println("Error: " + e.getMessage());
+            return false;
         }
         return false;
     }
 }
+

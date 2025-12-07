@@ -1,22 +1,29 @@
 package org.example;
 
 
-import org.example.models.accounts.Account;
-import org.example.models.accounts.AccountManager;
-import org.example.models.accounts.CheckingAccount;
-import org.example.models.accounts.SavingsAccount;
-import org.example.models.customers.Customer;
-import org.example.models.customers.PremiumCustomer;
-import org.example.models.customers.RegularCustomer;
-import org.example.models.transactions.Transaction;
-import org.example.models.transactions.TransactionManager;
-import org.example.utils.InputValidator;
+import org.example.models.Account;
+import org.example.models.CheckingAccount;
+import org.example.models.Customer;
+import org.example.models.PremiumCustomer;
+import org.example.models.RegularCustomer;
+import org.example.models.SavingsAccount;
+import org.example.models.Transaction;
+import org.example.models.exceptions.AccountNotFoundException;
+import org.example.models.exceptions.InsufficientFundsException;
+import org.example.models.exceptions.InvalidAmountException;
+import org.example.models.exceptions.MinimumBalanceException;
+import org.example.models.exceptions.OverdraftExceededException;
+import org.example.services.AccountManager;
+import org.example.services.StatementGenerator;
+import org.example.services.TransactionManager;
+import org.example.utils.ValidationUtils;
 
 import java.util.Stack;
 
 public class Main {
     private static AccountManager accountManager = new AccountManager();
     private static TransactionManager transactionManager = new TransactionManager();
+    private static StatementGenerator statementGenerator = new StatementGenerator(transactionManager);
 
     //  Stack for handling navigation
     private static Stack<Runnable> menuStack = new Stack<>();
@@ -48,7 +55,7 @@ public class Main {
         System.out.println("4. Run Tests");
         System.out.println("5. Exit\n");
 
-        int choice = InputValidator.getIntInRange("Enter Choice", 1, 5);
+        int choice = ValidationUtils.getIntInRange("Enter Choice", 1, 5);
 
         switch (choice) {
             case 1:
@@ -78,7 +85,7 @@ public class Main {
         System.out.println("2. View Accounts");
         System.out.println("3. Go Back\n");
 
-        int choice = InputValidator.getIntInRange("Enter Choice", 1, 3);
+        int choice = ValidationUtils.getIntInRange("Enter Choice", 1, 3);
 
         switch (choice) {
             case 1:
@@ -86,7 +93,7 @@ public class Main {
                 break;
             case 2:
                 accountManager.viewAllAccounts();
-                InputValidator.getString("Press Enter to continue");
+                ValidationUtils.getString("Press Enter to continue");
                 menuStack.pop();
                 break;
             case 3:
@@ -103,7 +110,7 @@ public class Main {
         System.out.println("Test functionality is coming soon!");
         System.out.println("This feature will be implemented in a future update.\n");
 
-        InputValidator.getString("Press Enter to continue");
+        ValidationUtils.getString("Press Enter to continue");
         menuStack.pop();
     }
 
@@ -112,18 +119,18 @@ public class Main {
         System.out.println("--------------------------");
         System.out.println("Enter 0 to go back.\n");
 
-        String name = InputValidator.getName("Enter customer name");
+        String name = ValidationUtils.getName("Enter customer name");
         if(name.equals("0")) { menuStack.pop(); return; }
 
-        int age = InputValidator.getIntPositive("Enter customer age");
-        String contact = InputValidator.getContactNumber("Enter customer contact");
-        String address = InputValidator.getString("Enter customer address");
+        int age = ValidationUtils.getIntPositive("Enter customer age");
+        String contact = ValidationUtils.getContactNumber("Enter customer contact");
+        String address = ValidationUtils.getString("Enter customer address");
 
         // Select Customer Type
         System.out.println("\nCustomer type:                      ");
         System.out.println("1. Regular Customer (Standard banking services)");
         System.out.println("2. Premium Customer (Enhanced benefits, min balance $10,000)\n");
-        int customerType = InputValidator.getIntInRange("Select type (1-2)", 1, 2);
+        int customerType = ValidationUtils.getIntInRange("Select type (1-2)", 1, 2);
 
         Customer customer;
         if (customerType == 2) {
@@ -134,18 +141,18 @@ public class Main {
 
         System.out.println("\nAccount type:                      ");
         System.out.printf("1. Savings Account (Interest: %.1f%%, Min Balance: %s)%n", 
-                SavingsAccount.getDefaultInterestRate(), InputValidator.formatAmount(SavingsAccount.getDefaultMinimumBalance()));
+                SavingsAccount.getDefaultInterestRate(), ValidationUtils.formatAmount(SavingsAccount.getDefaultMinimumBalance()));
         System.out.printf("2. Checking Account (Overdrift: %s, Monthly Fee: %s)%n%n", 
-                InputValidator.formatAmount(CheckingAccount.getDefaultOverdraftLimit()),
-                InputValidator.formatAmount(CheckingAccount.getDefaultMonthlyFee()));
-        int accType = InputValidator.getIntInRange("Select type (1-2)", 1, 2);
+                ValidationUtils.formatAmount(CheckingAccount.getDefaultOverdraftLimit()),
+                ValidationUtils.formatAmount(CheckingAccount.getDefaultMonthlyFee()));
+        int accType = ValidationUtils.getIntInRange("Select type (1-2)", 1, 2);
         
         Account account;
         if (accType == 1) {
-            double initialDep = InputValidator.getDoubleMin("Enter initial deposit amount", SavingsAccount.getDefaultMinimumBalance());
+            double initialDep = ValidationUtils.getDoubleMin("Enter initial deposit amount", SavingsAccount.getDefaultMinimumBalance());
             account = new SavingsAccount(customer, initialDep);
         } else {
-            double initialDep = InputValidator.getDoublePositive("Enter initial deposit amount");
+            double initialDep = ValidationUtils.getDoublePositive("Enter initial deposit amount");
             account = new CheckingAccount(customer, initialDep);
         }
 
@@ -168,13 +175,17 @@ public class Main {
         System.out.println("--------------------------");
         System.out.println("Enter 0 to go back.\n");
 
-        String accNum = InputValidator.getString("Enter Account Number");
+        String accNum = ValidationUtils.getString("Enter Account Number");
         if (accNum.equals("0")) { menuStack.pop(); return; }
 
         Account account = accountManager.findAccount(accNum);
         if (account == null) {
-            System.out.println("Account not found.");
-            InputValidator.getString("Press Enter to continue");
+            try {
+                throw new AccountNotFoundException("Account not found.");
+            } catch (AccountNotFoundException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+            ValidationUtils.getString("Press Enter to continue");
             menuStack.pop();
             return;
         }
@@ -183,16 +194,16 @@ public class Main {
         System.out.println("\nAccount details: ");
         System.out.printf("Customer: %s%n", account.getCustomer().getName());
         System.out.printf("Account Type: %s%n", account.getAccountType());
-        System.out.printf("Current Balance: %s%n", InputValidator.formatAmount(account.getBalance()));
+        System.out.printf("Current Balance: %s%n", ValidationUtils.formatAmount(account.getBalance()));
 
         // Select transaction type
         System.out.println("\nTransaction type: ");
         System.out.println("1. Deposit");
         System.out.println("2. Withdrawal\n");
-        int type = InputValidator.getIntInRange("Select Type (1-2)", 1, 2);
+        int type = ValidationUtils.getIntInRange("Select Type (1-2)", 1, 2);
 
         // Enter amount
-        double amount = InputValidator.getDoublePositive("Enter Amount");
+        double amount = ValidationUtils.getDoublePositive("Enter Amount");
 
         String transactionType = (type == 1) ? "Deposit" : "Withdrawal";
         double previousBalance = account.getBalance();
@@ -200,28 +211,25 @@ public class Main {
 
         // Validate withdrawal before showing confirmation (without processing)
         if (type == 2) {
-            boolean canWithdraw = false;
-            if (account instanceof SavingsAccount) {
-                SavingsAccount savingsAccount = (SavingsAccount) account;
-                canWithdraw = (previousBalance - amount >= savingsAccount.getMinimumBalance());
-            } else if (account instanceof CheckingAccount) {
-                CheckingAccount checkingAccount = (CheckingAccount) account;
-                canWithdraw = (previousBalance - amount >= -checkingAccount.getOverdraftLimit());
-            }
-            
-            if (!canWithdraw) {
+            try {
                 if (account instanceof SavingsAccount) {
                     SavingsAccount savingsAccount = (SavingsAccount) account;
-                    System.out.println("Transaction Failed: Minimum balance of " + InputValidator.formatAmount(savingsAccount.getMinimumBalance()) + " must be maintained.");
-                } else {
+                    if (previousBalance - amount < savingsAccount.getMinimumBalance()) {
+                        throw new MinimumBalanceException("Transaction Failed: Minimum balance of " + ValidationUtils.formatAmount(savingsAccount.getMinimumBalance()) + " must be maintained.");
+                    }
+                } else if (account instanceof CheckingAccount) {
                     CheckingAccount checkingAccount = (CheckingAccount) account;
-                    System.out.println("Transaction Failed: Exceeds overdraft limit of " + InputValidator.formatAmount(checkingAccount.getOverdraftLimit()));
+                    if (previousBalance - amount < -checkingAccount.getOverdraftLimit()) {
+                        throw new OverdraftExceededException("Transaction Failed: Exceeds overdraft limit of " + ValidationUtils.formatAmount(checkingAccount.getOverdraftLimit()));
+                    }
                 }
-                InputValidator.getString("Press Enter to continue");
+                newBalance = previousBalance - amount;
+            } catch (MinimumBalanceException | OverdraftExceededException e) {
+                System.out.println("Error: " + e.getMessage());
+                ValidationUtils.getString("Press Enter to continue");
                 menuStack.pop();
                 return;
             }
-            newBalance = previousBalance - amount;
         } else {
             newBalance = previousBalance + amount;
         }
@@ -230,7 +238,7 @@ public class Main {
         Transaction confirmationTxn = new Transaction(accNum, transactionType, amount, newBalance);
         confirmationTxn.displayTransactionDetails();
 
-        String confirmation = InputValidator.getYesNo("Confirm transaction? (Y/N)");
+        String confirmation = ValidationUtils.getYesNo("Confirm transaction? (Y/N)");
         
         if (confirmation.equalsIgnoreCase("Y")) {
             // Use processTransaction method from Transactable interface
@@ -245,10 +253,10 @@ public class Main {
                 System.out.println("\nTransaction failed!");
             }
             
-            InputValidator.getString("Press Enter to continue");
+            ValidationUtils.getString("Press Enter to continue");
             menuStack.pop();
         } else {
-            InputValidator.getString("Press Enter to continue");
+            ValidationUtils.getString("Press Enter to continue");
             menuStack.pop();
         }
     }
@@ -263,7 +271,7 @@ public class Main {
         
         // Loop until valid account is found or user enters 0 to go back
         while (account == null) {
-            accNum = InputValidator.getString("Enter Account Number");
+            accNum = ValidationUtils.getString("Enter Account Number");
             if (accNum.equals("0")) { 
                 menuStack.pop(); 
                 return; 
@@ -271,19 +279,23 @@ public class Main {
             
             account = accountManager.findAccount(accNum);
             if (account == null) {
-                System.out.println("Account not found.");
+                try {
+                    throw new AccountNotFoundException("Account not found.");
+                } catch (AccountNotFoundException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
             }
         }
         
-        transactionManager.viewTransactionsByAccount(accNum, account);
-        InputValidator.getString("Press Enter to continue");
+        statementGenerator.generateStatement(accNum, account);
+        ValidationUtils.getString("Press Enter to continue");
         menuStack.pop();
     }
 
     // Method to seed initial data into the application
     private static void seedData() {
-        Customer c1 = new RegularCustomer("John Doe", 30, "555-0101", "NY");
-        Customer c2 = new PremiumCustomer("Jane Smith", 45, "555-0202", "CA");
+        Customer c1 = new RegularCustomer("John Doe", 30, "+1-555-0101", "NY");
+        Customer c2 = new PremiumCustomer("Jane Smith", 45, "+1-555-0202", "CA");
 
         Account acc1 = new SavingsAccount(c1, 1000);
         accountManager.addAccount(acc1, true);

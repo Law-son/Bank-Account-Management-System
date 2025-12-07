@@ -1,6 +1,6 @@
-package org.example.models.transactions;
+package org.example.models;
 
-import org.example.utils.InputValidator;
+import org.example.utils.ValidationUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -26,16 +26,16 @@ public class Transaction {
 
     public void displayTransactionDetails() {
         System.out.printf("[%s] ID: %s | Type: %s | Amt: %s | Balance: %s%n",
-                timestamp, transactionId, type, InputValidator.formatAmount(amount), InputValidator.formatAmount(balanceAfter));
+                timestamp, transactionId, type, ValidationUtils.formatAmount(amount), ValidationUtils.formatAmount(balanceAfter));
         System.out.println("\nTRANSACTION CONFIRMATION     ");
         System.out.println("---------------------------------");
         System.out.printf("Transaction ID: %s%n", transactionId);
         System.out.printf("Account: %s%n", accountNumber);
         System.out.printf("Type: %s%n", type);
-        System.out.printf("Amount: %s%n", InputValidator.formatAmount(amount));
+        System.out.printf("Amount: %s%n", ValidationUtils.formatAmount(amount));
         double previousBalance = type.equals("Deposit") ? balanceAfter - amount : balanceAfter + amount;
-        System.out.printf("Previous Balance: %s%n", InputValidator.formatAmount(previousBalance));
-        System.out.printf("New Balance: %s%n", InputValidator.formatAmount(balanceAfter));
+        System.out.printf("Previous Balance: %s%n", ValidationUtils.formatAmount(previousBalance));
+        System.out.printf("New Balance: %s%n", ValidationUtils.formatAmount(balanceAfter));
         System.out.printf("Date/Time: %s%n", timestamp);
         System.out.println("---------------------------------");
     }
@@ -48,3 +48,4 @@ public class Transaction {
     public String getDateTime() { return timestamp; }
     public double getBalance() { return balanceAfter; }
 }
+
