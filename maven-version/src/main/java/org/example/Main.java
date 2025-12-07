@@ -42,13 +42,43 @@ public class Main {
         System.out.println("║       BANK ACCOUNT MANAGEMENT - MAIN MENU        ║");
         System.out.println("╚══════════════════════════════════════════════════╝\n");
 
-        System.out.println("1. Create Account");
-        System.out.println("2. View Accounts");
-        System.out.println("3. Process Transaction");
-        System.out.println("4. View Transaction History");
+        System.out.println("1. Manage Accounts");
+        System.out.println("2. Perform Transactions");
+        System.out.println("3. Generate Account Statements");
+        System.out.println("4. Run Tests");
         System.out.println("5. Exit\n");
 
         int choice = InputValidator.getIntInRange("Enter Choice", 1, 5);
+
+        switch (choice) {
+            case 1:
+                menuStack.push(Main::manageAccountsMenu);
+                break;
+            case 2:
+                menuStack.push(Main::processTransactionMenu);
+                break;
+            case 3:
+                menuStack.push(Main::viewHistoryMenu);
+                break;
+            case 4:
+                menuStack.push(Main::runTestsMenu);
+                break;
+            case 5:
+                menuStack.pop();
+                break;
+        }
+    }
+
+    private static void manageAccountsMenu() {
+        System.out.println("\n╔══════════════════════════════════════════════════╗");
+        System.out.println("║              MANAGE ACCOUNTS                      ║");
+        System.out.println("╚══════════════════════════════════════════════════╝\n");
+
+        System.out.println("1. Create Account");
+        System.out.println("2. View Accounts");
+        System.out.println("3. Go Back\n");
+
+        int choice = InputValidator.getIntInRange("Enter Choice", 1, 3);
 
         switch (choice) {
             case 1:
@@ -57,17 +87,24 @@ public class Main {
             case 2:
                 accountManager.viewAllAccounts();
                 InputValidator.getString("Press Enter to continue");
+                menuStack.pop();
                 break;
             case 3:
-                menuStack.push(Main::processTransactionMenu);
-                break;
-            case 4:
-                menuStack.push(Main::viewHistoryMenu);
-                break;
-            case 5:
                 menuStack.pop();
                 break;
         }
+    }
+
+    private static void runTestsMenu() {
+        System.out.println("\n╔══════════════════════════════════════════════════╗");
+        System.out.println("║                  RUN TESTS                        ║");
+        System.out.println("╚══════════════════════════════════════════════════╝\n");
+
+        System.out.println("Test functionality is coming soon!");
+        System.out.println("This feature will be implemented in a future update.\n");
+
+        InputValidator.getString("Press Enter to continue");
+        menuStack.pop();
     }
 
     private static void createAccountMenu() {
@@ -127,7 +164,7 @@ public class Main {
     }
 
     private static void processTransactionMenu() {
-        System.out.println("\nPROCESS TRANSACTION     ");
+        System.out.println("\nPERFORM TRANSACTIONS    ");
         System.out.println("--------------------------");
         System.out.println("Enter 0 to go back.\n");
 
@@ -217,7 +254,7 @@ public class Main {
     }
 
     private static void viewHistoryMenu() {
-        System.out.println("\nVIEW TRANSACTION HISTORY");
+        System.out.println("\nGENERATE ACCOUNT STATEMENTS");
         System.out.println("---------------------------------");
         System.out.println("Enter 0 to go back\n");
         
