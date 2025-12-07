@@ -5,6 +5,10 @@ import org.example.models.CheckingAccount;
 import org.example.models.SavingsAccount;
 import org.example.utils.ValidationUtils;
 
+/**
+ * Service class responsible for managing bank accounts.
+ * Handles account creation, retrieval, and listing operations.
+ */
 public class AccountManager {
     private Account[] accounts = new Account[50];
     private int accountCount = 0;

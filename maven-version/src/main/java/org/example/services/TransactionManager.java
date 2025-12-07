@@ -2,6 +2,10 @@ package org.example.services;
 
 import org.example.models.Transaction;
 
+/**
+ * Service class responsible for managing transaction records.
+ * Handles transaction storage and retrieval operations.
+ */
 public class TransactionManager {
     private Transaction[] transactions = new Transaction[200];
     private int transactionCount = 0;

@@ -2,10 +2,13 @@ package org.example.models;
 
 import org.example.models.exceptions.InvalidAmountException;
 import org.example.models.exceptions.InsufficientFundsException;
-import org.example.models.exceptions.MinimumBalanceException;
 import org.example.models.exceptions.OverdraftExceededException;
 import org.example.models.interfaces.Transactable;
 
+/**
+ * Abstract base class representing a bank account.
+ * Implements the Transactable interface for processing transactions.
+ */
 public abstract class Account implements Transactable {
     private String accountNumber;
     private Customer customer;
@@ -32,18 +35,48 @@ public abstract class Account implements Transactable {
         return status;
     }
 
-    // All subclasses use the same deposit logic unlike withdraw
-    // and the other abstract methods, hence I decided to keep
-    // this as a concrete method
+    /**
+     * Deposits the specified amount into the account.
+     * All subclasses use the same deposit logic, so this is implemented as a concrete method.
+     *
+     * @param amount the amount to deposit
+     * @throws InvalidAmountException if the amount is less than or equal to zero
+     */
     public void deposit(double amount) throws InvalidAmountException {
         if (amount <= 0) {
-            throw new InvalidAmountException("Deposit amount must be greater than zero.");
+            throw new InvalidAmountException("Invalid amount. Amount must be greater than 0.");
         }
         this.balance += amount;
     }
 
-    public abstract boolean withdraw(double amount) throws InsufficientFundsException, MinimumBalanceException, OverdraftExceededException;
+    /**
+     * Withdraws the specified amount from the account.
+     *
+     * @param amount the amount to withdraw
+     * @return true if withdrawal is successful
+     * @throws InsufficientFundsException if there are insufficient funds
+     * @throws OverdraftExceededException if withdrawal exceeds overdraft limit (for checking accounts)
+     */
+    /**
+     * Withdraws the specified amount from the account.
+     *
+     * @param amount the amount to withdraw
+     * @return true if withdrawal is successful
+     * @throws InsufficientFundsException if there are insufficient funds
+     * @throws OverdraftExceededException if withdrawal exceeds overdraft limit (for checking accounts)
+     */
+    public abstract boolean withdraw(double amount) throws InsufficientFundsException, OverdraftExceededException;
+
+    /**
+     * Displays the account details in a formatted manner.
+     */
     public abstract void displayAccountDetails();
+
+    /**
+     * Returns the type of account (e.g., "Savings", "Checking").
+     *
+     * @return the account type as a string
+     */
     public abstract String getAccountType();
 
     @Override
@@ -55,7 +88,7 @@ public abstract class Account implements Transactable {
             } else if (type.equalsIgnoreCase("Withdrawal")) {
                 return withdraw(amount);
             }
-        } catch (InvalidAmountException | InsufficientFundsException | MinimumBalanceException | OverdraftExceededException e) {
+        } catch (InvalidAmountException | InsufficientFundsException | OverdraftExceededException e) {
             System.out.println("Error: " + e.getMessage());
             return false;
         }

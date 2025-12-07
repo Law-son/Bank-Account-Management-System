@@ -1,6 +1,5 @@
 package org.example;
 
-
 import org.example.models.Account;
 import org.example.models.CheckingAccount;
 import org.example.models.Customer;
@@ -11,30 +10,34 @@ import org.example.models.Transaction;
 import org.example.models.exceptions.AccountNotFoundException;
 import org.example.models.exceptions.InsufficientFundsException;
 import org.example.models.exceptions.InvalidAmountException;
-import org.example.models.exceptions.MinimumBalanceException;
-import org.example.models.exceptions.OverdraftExceededException;
 import org.example.services.AccountManager;
 import org.example.services.StatementGenerator;
 import org.example.services.TransactionManager;
+import org.example.services.TransferService;
 import org.example.utils.ValidationUtils;
 
 import java.util.Stack;
 
+/**
+ * Main application class for the Bank Account Management System.
+ * Handles menu navigation and user interactions.
+ */
 public class Main {
-    private static AccountManager accountManager = new AccountManager();
-    private static TransactionManager transactionManager = new TransactionManager();
-    private static StatementGenerator statementGenerator = new StatementGenerator(transactionManager);
+    private static final AccountManager accountManager = new AccountManager();
+    private static final TransactionManager transactionManager = new TransactionManager();
+    private static final StatementGenerator statementGenerator = new StatementGenerator(transactionManager);
+    private static final TransferService transferService = new TransferService(accountManager, transactionManager);
+    private static final Stack<Runnable> menuStack = new Stack<>();
 
-    //  Stack for handling navigation
-    private static Stack<Runnable> menuStack = new Stack<>();
-
+    /**
+     * Main entry point of the application.
+     *
+     * @param args command line arguments (not used)
+     */
     public static void main(String[] args) {
         seedData();
-
-        // Push the Main Menu as the first item
         menuStack.push(Main::showMainMenu);
 
-        // Navigation Loop
         while (!menuStack.isEmpty()) {
             menuStack.peek().run();
         }
@@ -43,7 +46,9 @@ public class Main {
         System.out.println("Goodbye!");
     }
 
-    // Menu
+    /**
+     * Displays the main menu and handles user selection.
+     */
     private static void showMainMenu() {
         System.out.println("\n╔══════════════════════════════════════════════════╗");
         System.out.println("║       BANK ACCOUNT MANAGEMENT - MAIN MENU        ║");
@@ -76,6 +81,9 @@ public class Main {
         }
     }
 
+    /**
+     * Displays the account management menu.
+     */
     private static void manageAccountsMenu() {
         System.out.println("\n╔══════════════════════════════════════════════════╗");
         System.out.println("║              MANAGE ACCOUNTS                      ║");
@@ -102,6 +110,9 @@ public class Main {
         }
     }
 
+    /**
+     * Displays the test menu (placeholder for future implementation).
+     */
     private static void runTestsMenu() {
         System.out.println("\n╔══════════════════════════════════════════════════╗");
         System.out.println("║                  RUN TESTS                        ║");
@@ -114,185 +125,341 @@ public class Main {
         menuStack.pop();
     }
 
+    /**
+     * Handles account creation flow.
+     */
     private static void createAccountMenu() {
         System.out.println("\nACCOUNT CREATION        ");
         System.out.println("--------------------------");
         System.out.println("Enter 0 to go back.\n");
 
         String name = ValidationUtils.getName("Enter customer name");
-        if(name.equals("0")) { menuStack.pop(); return; }
+        if (name.equals("0")) {
+            menuStack.pop();
+            return;
+        }
 
         int age = ValidationUtils.getIntPositive("Enter customer age");
         String contact = ValidationUtils.getContactNumber("Enter customer contact");
         String address = ValidationUtils.getString("Enter customer address");
 
-        // Select Customer Type
+        Customer customer = createCustomer(name, age, contact, address);
+        Account account = createAccount(customer);
+
+        accountManager.addAccount(account);
+
+        Transaction initialDepositTransaction = new Transaction(
+                account.getAccountNumber(),
+                "Deposit",
+                account.getBalance(),
+                account.getBalance()
+        );
+        transactionManager.addTransaction(initialDepositTransaction);
+
+        menuStack.pop();
+    }
+
+    /**
+     * Creates a customer based on user selection.
+     *
+     * @param name    customer name
+     * @param age     customer age
+     * @param contact customer contact number
+     * @param address customer address
+     * @return the created customer
+     */
+    private static Customer createCustomer(String name, int age, String contact, String address) {
         System.out.println("\nCustomer type:                      ");
         System.out.println("1. Regular Customer (Standard banking services)");
         System.out.println("2. Premium Customer (Enhanced benefits, min balance $10,000)\n");
         int customerType = ValidationUtils.getIntInRange("Select type (1-2)", 1, 2);
 
-        Customer customer;
         if (customerType == 2) {
-            customer = new PremiumCustomer(name, age, contact, address);
+            return new PremiumCustomer(name, age, contact, address);
         } else {
-            customer = new RegularCustomer(name, age, contact, address);
+            return new RegularCustomer(name, age, contact, address);
         }
+    }
 
+    /**
+     * Creates an account based on user selection.
+     *
+     * @param customer the customer to associate with the account
+     * @return the created account
+     */
+    private static Account createAccount(Customer customer) {
         System.out.println("\nAccount type:                      ");
-        System.out.printf("1. Savings Account (Interest: %.1f%%, Min Balance: %s)%n", 
-                SavingsAccount.getDefaultInterestRate(), ValidationUtils.formatAmount(SavingsAccount.getDefaultMinimumBalance()));
-        System.out.printf("2. Checking Account (Overdrift: %s, Monthly Fee: %s)%n%n", 
+        System.out.printf("1. Savings Account (Interest: %.1f%%, Min Balance: %s)%n",
+                SavingsAccount.getDefaultInterestRate(),
+                ValidationUtils.formatAmount(SavingsAccount.getDefaultMinimumBalance()));
+        System.out.printf("2. Checking Account (Overdraft: %s, Monthly Fee: %s)%n%n",
                 ValidationUtils.formatAmount(CheckingAccount.getDefaultOverdraftLimit()),
                 ValidationUtils.formatAmount(CheckingAccount.getDefaultMonthlyFee()));
         int accType = ValidationUtils.getIntInRange("Select type (1-2)", 1, 2);
-        
-        Account account;
+
         if (accType == 1) {
-            double initialDep = ValidationUtils.getDoubleMin("Enter initial deposit amount", SavingsAccount.getDefaultMinimumBalance());
-            account = new SavingsAccount(customer, initialDep);
+            double initialDep = ValidationUtils.getDoubleMin("Enter initial deposit amount",
+                    SavingsAccount.getDefaultMinimumBalance());
+            return new SavingsAccount(customer, initialDep);
         } else {
             double initialDep = ValidationUtils.getDoublePositive("Enter initial deposit amount");
-            account = new CheckingAccount(customer, initialDep);
+            return new CheckingAccount(customer, initialDep);
         }
-
-        accountManager.addAccount(account);
-        
-        // Create and store transaction for initial deposit
-        Transaction initialDepositTransaction = new Transaction(
-            account.getAccountNumber(), 
-            "Deposit", 
-            account.getBalance(), 
-            account.getBalance()
-        );
-        transactionManager.addTransaction(initialDepositTransaction);
-        
-        menuStack.pop(); // Return to previous menu after success
     }
 
+    /**
+     * Handles transaction processing menu (Deposit, Withdrawal, Transfer).
+     */
     private static void processTransactionMenu() {
         System.out.println("\nPERFORM TRANSACTIONS    ");
         System.out.println("--------------------------");
         System.out.println("Enter 0 to go back.\n");
 
-        String accNum = ValidationUtils.getString("Enter Account Number");
-        if (accNum.equals("0")) { menuStack.pop(); return; }
+        String accountNumber = ValidationUtils.getString("Enter Account Number");
+        if (accountNumber.equals("0")) {
+            menuStack.pop();
+            return;
+        }
 
-        Account account = accountManager.findAccount(accNum);
+        Account account = findAccountOrShowError(accountNumber);
         if (account == null) {
-            try {
-                throw new AccountNotFoundException("Account not found.");
-            } catch (AccountNotFoundException e) {
-                System.out.println("Error: " + e.getMessage());
+            return;
+        }
+
+        displayAccountDetails(account);
+
+        System.out.println("\nTransaction type: ");
+        System.out.println("1. Deposit");
+        System.out.println("2. Withdrawal");
+        System.out.println("3. Transfer\n");
+        int transactionType = ValidationUtils.getIntInRange("Select Type (1-3)", 1, 3);
+
+        switch (transactionType) {
+            case 1:
+                handleDeposit(account);
+                break;
+            case 2:
+                handleWithdrawal(account);
+                break;
+            case 3:
+                handleTransfer(account);
+                break;
+        }
+    }
+
+    /**
+     * Finds an account by account number or displays an error message.
+     *
+     * @param accountNumber the account number to search for
+     * @return the account if found, null otherwise
+     */
+    private static Account findAccountOrShowError(String accountNumber) {
+        Account account = accountManager.findAccount(accountNumber);
+        if (account == null) {
+            displayError("Account not found. Please check the account number.");
+            ValidationUtils.getString("Press Enter to continue");
+            menuStack.pop();
+        }
+        return account;
+    }
+
+    /**
+     * Displays account details.
+     *
+     * @param account the account to display
+     */
+    private static void displayAccountDetails(Account account) {
+        System.out.println("\nAccount details: ");
+        System.out.printf("Customer: %s%n", account.getCustomer().getName());
+        System.out.printf("Account Type: %s%n", account.getAccountType());
+        System.out.printf("Current Balance: %s%n", ValidationUtils.formatAmount(account.getBalance()));
+    }
+
+    /**
+     * Handles deposit transaction.
+     *
+     * @param account the account to deposit into
+     */
+    private static void handleDeposit(Account account) {
+        double amount = ValidationUtils.getDoublePositive("Enter Amount");
+
+        try {
+            double newBalance = account.getBalance() + amount;
+            Transaction confirmationTxn = new Transaction(account.getAccountNumber(), "Deposit", amount, newBalance);
+            confirmationTxn.displayTransactionDetails();
+
+            String confirmation = ValidationUtils.getYesNo("Confirm transaction? (Y/N)");
+            if (confirmation.equalsIgnoreCase("Y")) {
+                boolean success = account.processTransaction(amount, "Deposit");
+                if (success) {
+                    transactionManager.addTransaction(confirmationTxn);
+                    System.out.println("\nTransaction completed successfully!");
+                } else {
+                    System.out.println("\nTransaction failed!");
+                }
             }
+        } catch (Exception e) {
+            displayError(e.getMessage());
+        }
+
+        ValidationUtils.getString("Press Enter to continue");
+        menuStack.pop();
+    }
+
+    /**
+     * Handles withdrawal transaction.
+     *
+     * @param account the account to withdraw from
+     */
+    private static void handleWithdrawal(Account account) {
+        double amount = ValidationUtils.getDoublePositive("Enter Amount");
+
+        try {
+            // Validate withdrawal before showing confirmation
+            validateWithdrawal(account, amount);
+
+            double newBalance = account.getBalance() - amount;
+            Transaction confirmationTxn = new Transaction(account.getAccountNumber(), "Withdrawal", amount, newBalance);
+            confirmationTxn.displayTransactionDetails();
+
+            String confirmation = ValidationUtils.getYesNo("Confirm transaction? (Y/N)");
+            if (confirmation.equalsIgnoreCase("Y")) {
+                boolean success = account.processTransaction(amount, "Withdrawal");
+                if (success) {
+                    transactionManager.addTransaction(confirmationTxn);
+                    System.out.println("\nTransaction completed successfully!");
+                } else {
+                    System.out.println("\nTransaction failed!");
+                }
+            }
+        } catch (InsufficientFundsException e) {
+            displayError(e.getMessage());
+        }
+
+        ValidationUtils.getString("Press Enter to continue");
+        menuStack.pop();
+    }
+
+    /**
+     * Validates if a withdrawal is possible without actually performing it.
+     *
+     * @param account the account to validate
+     * @param amount  the amount to withdraw
+     * @throws InsufficientFundsException if withdrawal is not possible
+     */
+    private static void validateWithdrawal(Account account, double amount) throws InsufficientFundsException {
+        double currentBalance = account.getBalance();
+
+        if (account instanceof SavingsAccount) {
+            SavingsAccount savingsAccount = (SavingsAccount) account;
+            if (currentBalance - amount < savingsAccount.getMinimumBalance()) {
+                throw new InsufficientFundsException(
+                        "Transaction Failed: Insufficient funds. Current balance: " +
+                                ValidationUtils.formatAmount(currentBalance));
+            }
+        } else if (account instanceof CheckingAccount) {
+            CheckingAccount checkingAccount = (CheckingAccount) account;
+            if (currentBalance - amount < -checkingAccount.getOverdraftLimit()) {
+                throw new InsufficientFundsException(
+                        "Transaction Failed: Insufficient funds. Current balance: " +
+                                ValidationUtils.formatAmount(currentBalance));
+            }
+        }
+    }
+
+    /**
+     * Handles transfer transaction between two accounts.
+     *
+     * @param fromAccount the source account
+     */
+    private static void handleTransfer(Account fromAccount) {
+        String toAccountNumber = ValidationUtils.getString("Enter Destination Account Number");
+        if (toAccountNumber.equals("0")) {
+            menuStack.pop();
+            return;
+        }
+
+        Account toAccount = findAccountOrShowError(toAccountNumber);
+        if (toAccount == null) {
+            return;
+        }
+
+        if (fromAccount.getAccountNumber().equals(toAccountNumber)) {
+            displayError("Cannot transfer to the same account.");
             ValidationUtils.getString("Press Enter to continue");
             menuStack.pop();
             return;
         }
 
-        // Display account details
-        System.out.println("\nAccount details: ");
-        System.out.printf("Customer: %s%n", account.getCustomer().getName());
-        System.out.printf("Account Type: %s%n", account.getAccountType());
-        System.out.printf("Current Balance: %s%n", ValidationUtils.formatAmount(account.getBalance()));
-
-        // Select transaction type
-        System.out.println("\nTransaction type: ");
-        System.out.println("1. Deposit");
-        System.out.println("2. Withdrawal\n");
-        int type = ValidationUtils.getIntInRange("Select Type (1-2)", 1, 2);
-
-        // Enter amount
         double amount = ValidationUtils.getDoublePositive("Enter Amount");
 
-        String transactionType = (type == 1) ? "Deposit" : "Withdrawal";
-        double previousBalance = account.getBalance();
-        double newBalance;
+        try {
+            // Display transfer details
+            System.out.println("\nTRANSFER DETAILS");
+            System.out.println("---------------------------------");
+            System.out.printf("From Account: %s (%s)%n", fromAccount.getAccountNumber(), fromAccount.getCustomer().getName());
+            System.out.printf("To Account: %s (%s)%n", toAccount.getAccountNumber(), toAccount.getCustomer().getName());
+            System.out.printf("Amount: %s%n", ValidationUtils.formatAmount(amount));
+            System.out.printf("From Account Balance After: %s%n",
+                    ValidationUtils.formatAmount(fromAccount.getBalance() - amount));
+            System.out.printf("To Account Balance After: %s%n",
+                    ValidationUtils.formatAmount(toAccount.getBalance() + amount));
+            System.out.println("---------------------------------");
 
-        // Validate withdrawal before showing confirmation (without processing)
-        if (type == 2) {
-            try {
-                if (account instanceof SavingsAccount) {
-                    SavingsAccount savingsAccount = (SavingsAccount) account;
-                    if (previousBalance - amount < savingsAccount.getMinimumBalance()) {
-                        throw new MinimumBalanceException("Transaction Failed: Minimum balance of " + ValidationUtils.formatAmount(savingsAccount.getMinimumBalance()) + " must be maintained.");
-                    }
-                } else if (account instanceof CheckingAccount) {
-                    CheckingAccount checkingAccount = (CheckingAccount) account;
-                    if (previousBalance - amount < -checkingAccount.getOverdraftLimit()) {
-                        throw new OverdraftExceededException("Transaction Failed: Exceeds overdraft limit of " + ValidationUtils.formatAmount(checkingAccount.getOverdraftLimit()));
-                    }
-                }
-                newBalance = previousBalance - amount;
-            } catch (MinimumBalanceException | OverdraftExceededException e) {
-                System.out.println("Error: " + e.getMessage());
-                ValidationUtils.getString("Press Enter to continue");
-                menuStack.pop();
-                return;
+            String confirmation = ValidationUtils.getYesNo("Confirm transfer? (Y/N)");
+            if (confirmation.equalsIgnoreCase("Y")) {
+                transferService.transfer(fromAccount.getAccountNumber(), toAccountNumber, amount);
+                System.out.println("\nTransfer completed successfully!");
             }
-        } else {
-            newBalance = previousBalance + amount;
+        } catch (AccountNotFoundException | InvalidAmountException | InsufficientFundsException e) {
+            displayError(e.getMessage());
         }
 
-        // Create transaction object for confirmation display
-        Transaction confirmationTxn = new Transaction(accNum, transactionType, amount, newBalance);
-        confirmationTxn.displayTransactionDetails();
-
-        String confirmation = ValidationUtils.getYesNo("Confirm transaction? (Y/N)");
-        
-        if (confirmation.equalsIgnoreCase("Y")) {
-            // Use processTransaction method from Transactable interface
-            boolean success = account.processTransaction(amount, transactionType);
-            
-            if (success) {
-                // Add transaction details (reuse the same transaction object)
-                transactionManager.addTransaction(confirmationTxn);
-                
-                System.out.println("\nTransaction completed successfully!");
-            } else {
-                System.out.println("\nTransaction failed!");
-            }
-            
-            ValidationUtils.getString("Press Enter to continue");
-            menuStack.pop();
-        } else {
-            ValidationUtils.getString("Press Enter to continue");
-            menuStack.pop();
-        }
-    }
-
-    private static void viewHistoryMenu() {
-        System.out.println("\nGENERATE ACCOUNT STATEMENTS");
-        System.out.println("---------------------------------");
-        System.out.println("Enter 0 to go back\n");
-        
-        Account account = null;
-        String accNum = "";
-        
-        // Loop until valid account is found or user enters 0 to go back
-        while (account == null) {
-            accNum = ValidationUtils.getString("Enter Account Number");
-            if (accNum.equals("0")) { 
-                menuStack.pop(); 
-                return; 
-            }
-            
-            account = accountManager.findAccount(accNum);
-            if (account == null) {
-                try {
-                    throw new AccountNotFoundException("Account not found.");
-                } catch (AccountNotFoundException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-        }
-        
-        statementGenerator.generateStatement(accNum, account);
         ValidationUtils.getString("Press Enter to continue");
         menuStack.pop();
     }
 
-    // Method to seed initial data into the application
+    /**
+     * Handles account statement generation.
+     */
+    private static void viewHistoryMenu() {
+        System.out.println("\nGENERATE ACCOUNT STATEMENTS");
+        System.out.println("---------------------------------");
+        System.out.println("Enter 0 to go back\n");
+
+        Account account = null;
+        String accountNumber = "";
+
+        while (account == null) {
+            accountNumber = ValidationUtils.getString("Enter Account Number");
+            if (accountNumber.equals("0")) {
+                menuStack.pop();
+                return;
+            }
+
+            account = accountManager.findAccount(accountNumber);
+            if (account == null) {
+                displayError("Account not found. Please check the account number.");
+            }
+        }
+
+        statementGenerator.generateStatement(accountNumber, account);
+        ValidationUtils.getString("Press Enter to continue");
+        menuStack.pop();
+    }
+
+    /**
+     * Displays an error message in a standardized format.
+     *
+     * @param message the error message to display
+     */
+    private static void displayError(String message) {
+        System.out.println("Error: " + message);
+    }
+
+    /**
+     * Seeds initial data into the application for testing purposes.
+     */
     private static void seedData() {
         Customer c1 = new RegularCustomer("John Doe", 30, "+1-555-0101", "NY");
         Customer c2 = new PremiumCustomer("Jane Smith", 45, "+1-555-0202", "CA");

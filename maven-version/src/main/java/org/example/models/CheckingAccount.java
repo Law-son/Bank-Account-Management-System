@@ -1,8 +1,11 @@
 package org.example.models;
 
-import org.example.models.exceptions.OverdraftExceededException;
+import org.example.models.exceptions.InsufficientFundsException;
 import org.example.utils.ValidationUtils;
 
+/**
+ * Represents a checking account with overdraft limit and monthly fee.
+ */
 public class CheckingAccount extends Account {
     private static final double DEFAULT_OVERDRAFT_LIMIT = 1000;
     private static final double DEFAULT_MONTHLY_FEE = 10;
@@ -10,17 +13,30 @@ public class CheckingAccount extends Account {
     private double overdraftLimit = DEFAULT_OVERDRAFT_LIMIT;
     private double monthlyFee = DEFAULT_MONTHLY_FEE;
 
+    /**
+     * Constructs a new checking account.
+     *
+     * @param customer       the customer who owns the account
+     * @param initialDeposit the initial deposit amount
+     */
     public CheckingAccount(Customer customer, double initialDeposit) {
         super(customer, initialDeposit);
     }
 
+    /**
+     * Withdraws the specified amount from the checking account.
+     *
+     * @param amount the amount to withdraw
+     * @return true if withdrawal is successful
+     * @throws InsufficientFundsException if withdrawal would exceed available balance and overdraft limit
+     */
     @Override
-    public boolean withdraw(double amount) throws OverdraftExceededException {
+    public boolean withdraw(double amount) throws InsufficientFundsException {
         if (balance - amount >= -overdraftLimit) {
             balance -= amount;
             return true;
         }
-        throw new OverdraftExceededException("Transaction Failed: Exceeds overdraft limit of " + ValidationUtils.formatAmount(overdraftLimit));
+        throw new InsufficientFundsException("Transaction Failed: Insufficient funds. Current balance: " + ValidationUtils.formatAmount(balance));
     }
 
     @Override

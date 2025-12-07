@@ -4,6 +4,10 @@ import org.example.models.Account;
 import org.example.models.Transaction;
 import org.example.utils.ValidationUtils;
 
+/**
+ * Service class responsible for generating account statements.
+ * Formats and displays transaction history for a given account.
+ */
 public class StatementGenerator {
     private TransactionManager transactionManager;
 

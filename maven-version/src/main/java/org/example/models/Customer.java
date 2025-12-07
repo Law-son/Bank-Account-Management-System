@@ -1,5 +1,8 @@
 package org.example.models;
 
+/**
+ * Abstract base class representing a bank customer.
+ */
 public abstract class Customer {
     private String customerId;
     private String name;
