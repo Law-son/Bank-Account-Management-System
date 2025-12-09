@@ -89,7 +89,7 @@ public class Main {
      */
     private static void manageAccountsMenu() {
         System.out.println("\n╔══════════════════════════════════════════════════╗");
-        System.out.println("║              MANAGE ACCOUNTS                      ║");
+        System.out.println("║              MANAGE ACCOUNTS                     ║");
         System.out.println("╚══════════════════════════════════════════════════╝\n");
 
         System.out.println("1. Create Account");
