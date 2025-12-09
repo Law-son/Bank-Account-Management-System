@@ -1,4 +1,4 @@
-package org.example.models.customers;
+package org.example.models;
 
 public class PremiumCustomer extends Customer {
     private double minimumBalance = 10000;
@@ -22,3 +22,4 @@ public class PremiumCustomer extends Customer {
         return true;
     }
 }
+

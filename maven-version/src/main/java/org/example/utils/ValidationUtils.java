@@ -3,7 +3,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Scanner;
 
-public class InputValidator {
+public class ValidationUtils {
     private static Scanner scanner = new Scanner(System.in);
     private static final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US);
 
@@ -176,3 +176,4 @@ public class InputValidator {
         }
     }
 }
+
