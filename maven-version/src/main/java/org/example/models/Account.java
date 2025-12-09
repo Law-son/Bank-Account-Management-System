@@ -57,13 +57,14 @@ public abstract class Account implements Transactable {
     }
 
     /**
-     * Withdraws the specified amount from the account.
+     * Checks if a withdrawal of the specified amount is possible without actually performing it.
+     * This method allows validation before showing confirmation to the user.
      *
-     * @param amount the amount to withdraw
-     * @return true if withdrawal is successful
-     * @throws InsufficientFundsException if there are insufficient funds
-     * @throws OverdraftExceededException if withdrawal exceeds overdraft limit (for checking accounts)
+     * @param amount the amount to check
+     * @return true if withdrawal is possible, false otherwise
      */
+    public abstract boolean canWithdraw(double amount);
+    
     /**
      * Withdraws the specified amount from the account.
      *

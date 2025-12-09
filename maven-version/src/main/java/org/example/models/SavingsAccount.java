@@ -24,6 +24,17 @@ public class SavingsAccount extends Account {
     }
 
     /**
+     * Checks if a withdrawal of the specified amount is possible.
+     *
+     * @param amount the amount to check
+     * @return true if withdrawal would maintain minimum balance, false otherwise
+     */
+    @Override
+    public boolean canWithdraw(double amount) {
+        return balance - amount >= minimumBalance;
+    }
+    
+    /**
      * Withdraws the specified amount from the savings account.
      *
      * @param amount the amount to withdraw

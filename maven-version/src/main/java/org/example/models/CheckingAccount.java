@@ -24,6 +24,17 @@ public class CheckingAccount extends Account {
     }
 
     /**
+     * Checks if a withdrawal of the specified amount is possible.
+     *
+     * @param amount the amount to check
+     * @return true if withdrawal is within overdraft limit, false otherwise
+     */
+    @Override
+    public boolean canWithdraw(double amount) {
+        return balance - amount >= -overdraftLimit;
+    }
+    
+    /**
      * Withdraws the specified amount from the checking account.
      *
      * @param amount the amount to withdraw
