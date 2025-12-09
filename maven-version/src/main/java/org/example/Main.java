@@ -10,11 +10,13 @@ import org.example.models.Transaction;
 import org.example.models.exceptions.AccountNotFoundException;
 import org.example.models.exceptions.InsufficientFundsException;
 import org.example.models.exceptions.InvalidAmountException;
+import org.example.models.exceptions.OverdraftExceededException;
 import org.example.services.AccountManager;
 import org.example.services.StatementGenerator;
 import org.example.services.TransactionManager;
 import org.example.services.TransferService;
 import org.example.utils.ValidationUtils;
+import org.example.utils.TestRunner;
 
 import java.util.Stack;
 
@@ -43,6 +45,7 @@ public class Main {
         }
 
         System.out.println("Thank you for using Bank Account Management System!");
+        System.out.println("All data saved in memory. Remember to commit your latest changes to Git!");
         System.out.println("Goodbye!");
     }
 
@@ -111,15 +114,15 @@ public class Main {
     }
 
     /**
-     * Displays the test menu (placeholder for future implementation).
+     * Displays the test menu and runs all JUnit tests.
      */
     private static void runTestsMenu() {
         System.out.println("\n╔══════════════════════════════════════════════════╗");
-        System.out.println("║                  RUN TESTS                        ║");
+        System.out.println("║                  RUN TESTS                       ║");
         System.out.println("╚══════════════════════════════════════════════════╝\n");
 
-        System.out.println("Test functionality is coming soon!");
-        System.out.println("This feature will be implemented in a future update.\n");
+        // Run all JUnit tests
+        TestRunner.runAllTests();
 
         ValidationUtils.getString("Press Enter to continue");
         menuStack.pop();
@@ -283,23 +286,19 @@ public class Main {
     private static void handleDeposit(Account account) {
         double amount = ValidationUtils.getDoublePositive("Enter Amount");
 
-        try {
-            double newBalance = account.getBalance() + amount;
-            Transaction confirmationTxn = new Transaction(account.getAccountNumber(), "Deposit", amount, newBalance);
-            confirmationTxn.displayTransactionDetails();
+        double newBalance = account.getBalance() + amount;
+        Transaction confirmationTxn = new Transaction(account.getAccountNumber(), "Deposit", amount, newBalance);
+        confirmationTxn.displayTransactionDetails();
 
-            String confirmation = ValidationUtils.getYesNo("Confirm transaction? (Y/N)");
-            if (confirmation.equalsIgnoreCase("Y")) {
-                boolean success = account.processTransaction(amount, "Deposit");
-                if (success) {
-                    transactionManager.addTransaction(confirmationTxn);
-                    System.out.println("\nTransaction completed successfully!");
-                } else {
-                    System.out.println("\nTransaction failed!");
-                }
+        String confirmation = ValidationUtils.getYesNo("Confirm transaction? (Y/N)");
+        if (confirmation.equalsIgnoreCase("Y")) {
+            boolean success = account.processTransaction(amount, "Deposit");
+            if (success) {
+                transactionManager.addTransaction(confirmationTxn);
+                System.out.println("\nTransaction completed successfully!");
+            } else {
+                System.out.println("\nTransaction failed!");
             }
-        } catch (Exception e) {
-            displayError(e.getMessage());
         }
 
         ValidationUtils.getString("Press Enter to continue");
@@ -411,8 +410,16 @@ public class Main {
                 transferService.transfer(fromAccount.getAccountNumber(), toAccountNumber, amount);
                 System.out.println("\nTransfer completed successfully!");
             }
-        } catch (AccountNotFoundException | InvalidAmountException | InsufficientFundsException e) {
+        } catch (AccountNotFoundException e) {
             displayError(e.getMessage());
+        } catch (InvalidAmountException e) {
+            displayError(e.getMessage());
+        } catch (InsufficientFundsException e) {
+            displayError(e.getMessage());
+        } catch (OverdraftExceededException e) {
+            displayError(e.getMessage());
+        } catch (Exception e) {
+            displayError("An unexpected error occurred: " + e.getMessage());
         }
 
         ValidationUtils.getString("Press Enter to continue");

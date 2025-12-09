@@ -17,6 +17,13 @@ public abstract class Account implements Transactable {
 
     protected static int accountCounter = 0;
 
+    /**
+     * Resets the account counter. Used primarily for testing purposes.
+     */
+    public static void resetAccountCounter() {
+        accountCounter = 0;
+    }
+
     public Account(Customer customer, double initialDeposit) {
         this.accountNumber = "ACC" + String.format("%03d", ++accountCounter);
         this.customer = customer;

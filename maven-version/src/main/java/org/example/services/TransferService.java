@@ -5,6 +5,7 @@ import org.example.models.Transaction;
 import org.example.models.exceptions.AccountNotFoundException;
 import org.example.models.exceptions.InsufficientFundsException;
 import org.example.models.exceptions.InvalidAmountException;
+import org.example.models.exceptions.OverdraftExceededException;
 
 /**
  * Service class responsible for handling money transfers between accounts.
@@ -34,9 +35,10 @@ public class TransferService {
      * @throws AccountNotFoundException if either account is not found
      * @throws InvalidAmountException if the amount is invalid
      * @throws InsufficientFundsException if the source account has insufficient funds
+     * @throws OverdraftExceededException if withdrawal exceeds overdraft limit
      */
     public void transfer(String fromAccountNumber, String toAccountNumber, double amount)
-            throws AccountNotFoundException, InvalidAmountException, InsufficientFundsException {
+            throws AccountNotFoundException, InvalidAmountException, InsufficientFundsException, OverdraftExceededException {
         // Validate amount
         if (amount <= 0) {
             throw new InvalidAmountException("Invalid amount. Amount must be greater than 0.");
@@ -59,10 +61,12 @@ public class TransferService {
             throw new InvalidAmountException("Cannot transfer to the same account.");
         }
 
-        // Withdraw from source account (this will throw InsufficientFundsException if needed)
+        // Withdraw from source account (this will throw InsufficientFundsException or OverdraftExceededException if needed)
         fromAccount.withdraw(amount);
 
-        // Deposit to destination account
+        // Deposit to destination account (this will throw InvalidAmountException if needed)
+        // Note: If deposit fails after successful withdrawal, we would need to reverse the withdrawal
+        // However, deposit should never fail with a valid amount, so this is a safety check
         toAccount.deposit(amount);
 
         // Record transactions
