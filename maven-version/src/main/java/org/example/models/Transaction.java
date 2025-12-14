@@ -5,15 +5,21 @@ import org.example.utils.ValidationUtils;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Represents a financial transaction in the banking system.
+ * Supports date-based sorting and functional programming operations.
+ */
 public class Transaction {
     private static int transactionCounter = 0;
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm a");
 
     private String transactionId;
     private String accountNumber;
-    private String type; // Deposit or Withdrawal
+    private String type; // Deposit, Withdrawal, Transfer In, Transfer Out
     private double amount;
     private double balanceAfter;
     private String timestamp;
+    private LocalDateTime dateTime; // Stored for efficient sorting
 
     public Transaction(String accountNumber, String type, double amount, double balanceAfter) {
         this.transactionId = "TXN" + String.format("%03d", ++transactionCounter);
@@ -21,7 +27,8 @@ public class Transaction {
         this.type = type;
         this.amount = amount;
         this.balanceAfter = balanceAfter;
-        this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm a"));
+        this.dateTime = LocalDateTime.now();
+        this.timestamp = dateTime.format(FORMATTER);
     }
 
     public void displayTransactionDetails() {
@@ -47,5 +54,14 @@ public class Transaction {
     public String getTransactionID() { return transactionId; }
     public String getDateTime() { return timestamp; }
     public double getBalance() { return balanceAfter; }
+    
+    /**
+     * Gets the LocalDateTime representation for sorting purposes.
+     *
+     * @return the transaction date/time as LocalDateTime
+     */
+    public LocalDateTime getDateTimeAsLocalDateTime() {
+        return dateTime;
+    }
 }
 

@@ -76,27 +76,16 @@ class TransferServiceTest {
         assertEquals(initialTransactionCount + 2, transactionManager.getTransactionCount(),
                 "Should record 2 transactions (Transfer Out and Transfer In)");
         
-        Transaction[] sourceTransactions = transactionManager.getTransactionsByAccount(sourceAccount.getAccountNumber());
-        Transaction[] destinationTransactions = transactionManager.getTransactionsByAccount(destinationAccount.getAccountNumber());
+        var sourceTransactions = transactionManager.getTransactionsByAccount(sourceAccount.getAccountNumber());
+        var destinationTransactions = transactionManager.getTransactionsByAccount(destinationAccount.getAccountNumber());
         
-        boolean hasTransferOut = false;
-        boolean hasTransferIn = false;
+        boolean hasTransferOut = sourceTransactions.stream()
+                .anyMatch(txn -> "Transfer Out".equals(txn.getType()) && 
+                        Math.abs(txn.getAmount() - transferAmount) < 0.01);
         
-        for (Transaction txn : sourceTransactions) {
-            if ("Transfer Out".equals(txn.getType())) {
-                hasTransferOut = true;
-                assertEquals(transferAmount, txn.getAmount(), 0.01,
-                        "Transfer Out should have correct amount");
-            }
-        }
-        
-        for (Transaction txn : destinationTransactions) {
-            if ("Transfer In".equals(txn.getType())) {
-                hasTransferIn = true;
-                assertEquals(transferAmount, txn.getAmount(), 0.01,
-                        "Transfer In should have correct amount");
-            }
-        }
+        boolean hasTransferIn = destinationTransactions.stream()
+                .anyMatch(txn -> "Transfer In".equals(txn.getType()) && 
+                        Math.abs(txn.getAmount() - transferAmount) < 0.01);
         
         assertTrue(hasTransferOut, "Source account should have Transfer Out transaction");
         assertTrue(hasTransferIn, "Destination account should have Transfer In transaction");

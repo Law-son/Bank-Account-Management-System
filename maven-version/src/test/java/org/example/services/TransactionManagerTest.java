@@ -66,14 +66,14 @@ class TransactionManagerTest {
         transactionManager.addTransaction(transaction2);
         transactionManager.addTransaction(otherTransaction);
         
-        Transaction[] accountTransactions = transactionManager.getTransactionsByAccount(accountNumber);
+        var accountTransactions = transactionManager.getTransactionsByAccount(accountNumber);
 
         // Assert
-        assertEquals(2, accountTransactions.length,
+        assertEquals(2, accountTransactions.size(),
                 "Should return 2 transactions for the test account");
-        assertEquals(transaction1.getAccountNumber(), accountTransactions[0].getAccountNumber(),
+        assertEquals(transaction1.getAccountNumber(), accountTransactions.get(0).getAccountNumber(),
                 "First transaction should belong to test account");
-        assertEquals(transaction2.getAccountNumber(), accountTransactions[1].getAccountNumber(),
+        assertEquals(transaction2.getAccountNumber(), accountTransactions.get(1).getAccountNumber(),
                 "Second transaction should belong to test account");
     }
 
@@ -88,17 +88,17 @@ class TransactionManagerTest {
 
         // Act
         transactionManager.addTransaction(transaction);
-        Transaction[] transactions = transactionManager.getTransactionsByAccount(accountNumber);
+        var transactions = transactionManager.getTransactionsByAccount(accountNumber);
 
         // Assert
-        assertEquals(1, transactions.length, "Should have one transaction");
-        assertEquals(accountNumber, transactions[0].getAccountNumber(),
+        assertEquals(1, transactions.size(), "Should have one transaction");
+        assertEquals(accountNumber, transactions.get(0).getAccountNumber(),
                 "Transaction should have correct account number");
-        assertEquals(transactionType, transactions[0].getType(),
+        assertEquals(transactionType, transactions.get(0).getType(),
                 "Transaction should have correct type");
-        assertEquals(amount, transactions[0].getAmount(), 0.01,
+        assertEquals(amount, transactions.get(0).getAmount(), 0.01,
                 "Transaction should have correct amount");
-        assertEquals(balance, transactions[0].getBalance(), 0.01,
+        assertEquals(balance, transactions.get(0).getBalance(), 0.01,
                 "Transaction should have correct balance");
     }
 
@@ -119,8 +119,8 @@ class TransactionManagerTest {
         assertEquals(3, transactionManager.getTransactionCount(),
                 "Should have 3 total transactions");
         
-        Transaction[] accountTransactions = transactionManager.getTransactionsByAccount(accountNumber);
-        assertEquals(3, accountTransactions.length,
+        var accountTransactions = transactionManager.getTransactionsByAccount(accountNumber);
+        assertEquals(3, accountTransactions.size(),
                 "Should return all 3 transactions for the account");
     }
 }
