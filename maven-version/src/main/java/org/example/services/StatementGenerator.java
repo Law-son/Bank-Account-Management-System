@@ -4,8 +4,12 @@ import org.example.models.Account;
 import org.example.models.Transaction;
 import org.example.utils.ValidationUtils;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Service class responsible for generating account statements.
+ * Uses Streams and functional programming for data processing.
  * Formats and displays transaction history for a given account.
  */
 public class StatementGenerator {
@@ -25,9 +29,10 @@ public class StatementGenerator {
             System.out.printf("\nAccount: %s%n", accountNumber);
         }
         
-        Transaction[] accountTransactions = transactionManager.getTransactionsByAccount(accountNumber);
+        // Get transactions sorted by date (newest first) using Streams
+        List<Transaction> accountTransactions = transactionManager.getTransactionsByAccountSortedByDate(accountNumber);
 
-        if (accountTransactions.length == 0) {
+        if (accountTransactions.isEmpty()) {
             System.out.println("\n------------------------------------------");
             System.out.println("No transactions recorded for this account.");
             System.out.println("------------------------------------------\n");
@@ -36,10 +41,27 @@ public class StatementGenerator {
         }
     }
 
-    private void printSummary(String accountNumber, Transaction[] accountTransactions) {
-        double deposits = 0;
-        double withdrawals = 0;
-        int txnTotal = accountTransactions.length;
+    /**
+     * Prints transaction summary using Streams for aggregation.
+     *
+     * @param accountNumber the account number
+     * @param accountTransactions list of transactions to display
+     */
+    private void printSummary(String accountNumber, List<Transaction> accountTransactions) {
+        // Use Streams for aggregation
+        double deposits = accountTransactions.stream()
+                .filter(txn -> txn.getType().equalsIgnoreCase("Deposit") || 
+                              txn.getType().equalsIgnoreCase("Transfer In"))
+                .mapToDouble(Transaction::getAmount)
+                .sum();
+        
+        double withdrawals = accountTransactions.stream()
+                .filter(txn -> txn.getType().equalsIgnoreCase("Withdrawal") || 
+                              txn.getType().equalsIgnoreCase("Transfer Out"))
+                .mapToDouble(txn -> Math.abs(txn.getAmount()))
+                .sum();
+        
+        int txnTotal = accountTransactions.size();
 
         System.out.println();
         System.out.println("TRANSACTION HISTORY");
@@ -48,19 +70,13 @@ public class StatementGenerator {
                 "TXN ID", "DATE/TIME", "TYPE", "AMOUNT", "BALANCE");
         System.out.println("------------------------------------------------------------------------");
 
-        for (Transaction transaction : accountTransactions) {
+        // Use Streams for iteration and transformation
+        accountTransactions.forEach(transaction -> {
             // Format amount with sign before dollar sign: +$2,694.00 or -$2,694.00
             String sign = transaction.getAmount() >= 0 ? "+" : "-";
             String formattedAmount = ValidationUtils.formatAmount(Math.abs(transaction.getAmount()));
             // Remove the $ from formatAmount and add it after the sign
             String amountStr = sign + "$" + formattedAmount.substring(1);
-
-            // Sum totals
-            if (transaction.getType().equalsIgnoreCase("DEPOSIT")) {
-                deposits += transaction.getAmount();
-            } else if (transaction.getType().equalsIgnoreCase("WITHDRAWAL")) {
-                withdrawals += Math.abs(transaction.getAmount());
-            }
 
             // Print each row
             System.out.printf("%-8s | %-20s | %-10s | %-10s | %s%n",
@@ -69,7 +85,7 @@ public class StatementGenerator {
                     transaction.getType().toUpperCase(),
                     amountStr,
                     ValidationUtils.formatAmount(transaction.getBalance()));
-        }
+        });
 
         System.out.println("------------------------------------------------------------------------");
         System.out.println();
