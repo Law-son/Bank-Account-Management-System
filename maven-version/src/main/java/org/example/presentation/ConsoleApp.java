@@ -78,10 +78,11 @@ public class ConsoleApp {
         System.out.println("1. Manage Accounts");
         System.out.println("2. Perform Transactions");
         System.out.println("3. Generate Account Statements");
-        System.out.println("4. Run Tests");
-        System.out.println("5. Exit\n");
+        System.out.println("4. Save/Load Data");
+        System.out.println("5. Run Concurrent Simulation");
+        System.out.println("6. Exit\n");
         
-        int choice = ValidationUtils.getIntInRange("Enter Choice", 1, 5);
+        int choice = ValidationUtils.getIntInRange("Enter Choice", 1, 6);
         
         switch (choice) {
             case 1:
@@ -94,9 +95,12 @@ public class ConsoleApp {
                 menuStack.push(this::viewHistoryMenu);
                 break;
             case 4:
-                menuStack.push(this::runTestsMenu);
+                menuStack.push(this::saveLoadDataMenu);
                 break;
             case 5:
+                menuStack.push(this::runConcurrentSimulationMenu);
+                break;
+            case 6:
                 menuStack.pop();
                 break;
         }
@@ -133,6 +137,7 @@ public class ConsoleApp {
     
     /**
      * Displays the test menu and runs all JUnit tests.
+     * Note: This method is kept for potential future use but is not currently in the main menu.
      */
     private void runTestsMenu() {
         System.out.println("\n╔══════════════════════════════════════════════════╗");
@@ -141,6 +146,42 @@ public class ConsoleApp {
         
         // Run all JUnit tests
         TestRunner.runAllTests();
+        
+        ValidationUtils.getString("Press Enter to continue");
+        menuStack.pop();
+    }
+    
+    /**
+     * Handles save/load data menu (placeholder for future implementation).
+     */
+    private void saveLoadDataMenu() {
+        System.out.println("\n╔══════════════════════════════════════════════════╗");
+        System.out.println("║              SAVE/LOAD DATA                       ║");
+        System.out.println("╚══════════════════════════════════════════════════╝\n");
+        
+        System.out.println("Save/Load Data functionality is coming soon!");
+        System.out.println("This feature will allow you to:");
+        System.out.println("  - Save account and transaction data to file");
+        System.out.println("  - Load previously saved data from file");
+        System.out.println("  - Export data in various formats\n");
+        
+        ValidationUtils.getString("Press Enter to continue");
+        menuStack.pop();
+    }
+    
+    /**
+     * Handles concurrent simulation menu (placeholder for future implementation).
+     */
+    private void runConcurrentSimulationMenu() {
+        System.out.println("\n╔══════════════════════════════════════════════════╗");
+        System.out.println("║         RUN CONCURRENT SIMULATION                 ║");
+        System.out.println("╚══════════════════════════════════════════════════╝\n");
+        
+        System.out.println("Concurrent Simulation functionality is coming soon!");
+        System.out.println("This feature will allow you to:");
+        System.out.println("  - Simulate multiple concurrent transactions");
+        System.out.println("  - Test thread safety of account operations");
+        System.out.println("  - Analyze performance under concurrent load\n");
         
         ValidationUtils.getString("Press Enter to continue");
         menuStack.pop();
