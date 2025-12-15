@@ -8,6 +8,7 @@ import org.example.models.exceptions.InvalidAmountException;
 import org.example.models.exceptions.OverdraftExceededException;
 import org.example.services.AccountCreationService;
 import org.example.services.AccountManager;
+import org.example.services.DataPersistenceService;
 import org.example.services.StatementGenerator;
 import org.example.services.TransactionManager;
 import org.example.services.TransferService;
@@ -27,6 +28,7 @@ public class ConsoleApp {
     private final StatementGenerator statementGenerator;
     private final TransferService transferService;
     private final AccountCreationService accountCreationService;
+    private final DataPersistenceService dataPersistenceService;
     private final Stack<Runnable> menuStack;
     
     /**
@@ -37,25 +39,36 @@ public class ConsoleApp {
      * @param statementGenerator   the statement generator service
      * @param transferService      the transfer service
      * @param accountCreationService the account creation service
+     * @param dataPersistenceService the data persistence service
      */
     public ConsoleApp(AccountManager accountManager, 
                      TransactionManager transactionManager,
                      StatementGenerator statementGenerator,
                      TransferService transferService,
-                     AccountCreationService accountCreationService) {
+                     AccountCreationService accountCreationService,
+                     DataPersistenceService dataPersistenceService) {
         this.accountManager = accountManager;
         this.transactionManager = transactionManager;
         this.statementGenerator = statementGenerator;
         this.transferService = transferService;
         this.accountCreationService = accountCreationService;
+        this.dataPersistenceService = dataPersistenceService;
         this.menuStack = new Stack<>();
     }
     
     /**
      * Starts the console application and begins menu navigation.
+     * Loads data from files on startup, and seeds data only if no accounts exist.
      */
     public void start() {
-        seedData();
+        // Load data from files on startup
+        loadDataOnStartup();
+        
+        // Only seed data if no accounts were loaded (first run)
+        if (accountManager.getAccountCount() == 0) {
+            seedData();
+        }
+        
         menuStack.push(this::showMainMenu);
         
         while (!menuStack.isEmpty()) {
@@ -65,6 +78,22 @@ public class ConsoleApp {
         System.out.println("Thank you for using Bank Account Management System!");
         System.out.println("All data saved in memory. Remember to commit your latest changes to Git!");
         System.out.println("Goodbye!");
+    }
+    
+    /**
+     * Loads accounts and transactions from files on application startup.
+     * Uses DataPersistenceService with functional Stream processing.
+     */
+    private void loadDataOnStartup() {
+        int accountsLoaded = dataPersistenceService.loadAccounts();
+        int transactionsLoaded = dataPersistenceService.loadTransactions();
+        
+        if (accountsLoaded > 0) {
+            System.out.println("\n" + accountsLoaded + " accounts loaded successfully from accounts.txt");
+        }
+        if (transactionsLoaded > 0) {
+            System.out.println(transactionsLoaded + " transactions loaded from transactions.txt");
+        }
     }
     
     /**
@@ -154,19 +183,50 @@ public class ConsoleApp {
     /**
      * Handles save/load data menu (placeholder for future implementation).
      */
+    /**
+     * Handles save/load data menu operations.
+     * Allows users to save current accounts and transactions to files.
+     */
     private void saveLoadDataMenu() {
         System.out.println("\n╔══════════════════════════════════════════════════╗");
         System.out.println("║              SAVE/LOAD DATA                       ║");
         System.out.println("╚══════════════════════════════════════════════════╝\n");
         
-        System.out.println("Save/Load Data functionality is coming soon!");
-        System.out.println("This feature will allow you to:");
-        System.out.println("  - Save account and transaction data to file");
-        System.out.println("  - Load previously saved data from file");
-        System.out.println("  - Export data in various formats\n");
+        System.out.println("Enter 0 to go back\n");
+        System.out.println("1. Save Data to Files\n");
+        
+        int choice = ValidationUtils.getIntInRange("Enter Choice", 0, 1);
+        
+        if (choice == 0) {
+            menuStack.pop();
+            return;
+        }
+        
+        if (choice == 1) {
+            saveData();
+        }
         
         ValidationUtils.getString("Press Enter to continue");
         menuStack.pop();
+    }
+    
+    /**
+     * Saves all accounts and transactions to files.
+     * Displays confirmation messages upon successful save.
+     */
+    private void saveData() {
+        System.out.println("\nSaving data to files...");
+        
+        if (dataPersistenceService.saveAll()) {
+            int accountCount = accountManager.getAccountCount();
+            int transactionCount = transactionManager.getTransactionCount();
+            
+            System.out.println("\n✓ Data saved successfully!");
+            System.out.println("  - " + accountCount + " accounts saved to accounts.txt");
+            System.out.println("  - " + transactionCount + " transactions saved to transactions.txt");
+        } else {
+            System.out.println("\n✗ Error: Failed to save data to files.");
+        }
     }
     
     /**

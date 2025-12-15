@@ -23,6 +23,9 @@ public abstract class Customer {
 
     public String getCustomerId() { return customerId; }
     public String getName() { return name; }
+    public int getAge() { return age; }
+    public String getContact() { return contact; }
+    public String getAddress() { return address; }
 
     public abstract void displayCustomerDetails();
     public abstract String getCustomerType();

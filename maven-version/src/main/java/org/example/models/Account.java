@@ -23,6 +23,16 @@ public abstract class Account implements Transactable {
     public static void resetAccountCounter() {
         accountCounter = 0;
     }
+    
+    /**
+     * Sets the account counter to the specified value.
+     * Used when loading accounts from persistence to ensure new accounts get correct numbers.
+     *
+     * @param value the value to set the counter to
+     */
+    public static void setAccountCounter(int value) {
+        accountCounter = value;
+    }
 
     public Account(Customer customer, double initialDeposit) {
         this.accountNumber = "ACC" + String.format("%03d", ++accountCounter);
