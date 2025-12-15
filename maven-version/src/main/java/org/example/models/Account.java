@@ -43,7 +43,16 @@ public abstract class Account implements Transactable {
 
     public String getAccountNumber() { return accountNumber; }
     public Customer getCustomer() { return customer; }
-    public double getBalance() { return balance; }
+    
+    /**
+     * Gets the current account balance.
+     * Synchronized to ensure thread-safe access during concurrent transactions.
+     *
+     * @return the current balance
+     */
+    public synchronized double getBalance() { 
+        return balance; 
+    }
     public String getStatus() { 
         // Format status for display: "ACTIVE" -> "Active"
         if (status != null && !status.isEmpty()) {
@@ -55,11 +64,12 @@ public abstract class Account implements Transactable {
     /**
      * Deposits the specified amount into the account.
      * All subclasses use the same deposit logic, so this is implemented as a concrete method.
+     * Synchronized to prevent race conditions during concurrent deposits.
      *
      * @param amount the amount to deposit
      * @throws InvalidAmountException if the amount is less than or equal to zero
      */
-    public void deposit(double amount) throws InvalidAmountException {
+    public synchronized void deposit(double amount) throws InvalidAmountException {
         if (amount <= 0) {
             throw new InvalidAmountException("Invalid amount. Amount must be greater than 0.");
         }
@@ -69,6 +79,7 @@ public abstract class Account implements Transactable {
     /**
      * Checks if a withdrawal of the specified amount is possible without actually performing it.
      * This method allows validation before showing confirmation to the user.
+     * Subclasses must implement this method with synchronization for thread safety.
      *
      * @param amount the amount to check
      * @return true if withdrawal is possible, false otherwise
@@ -77,6 +88,7 @@ public abstract class Account implements Transactable {
     
     /**
      * Withdraws the specified amount from the account.
+     * Subclasses must implement this method with synchronization to prevent race conditions.
      *
      * @param amount the amount to withdraw
      * @return true if withdrawal is successful

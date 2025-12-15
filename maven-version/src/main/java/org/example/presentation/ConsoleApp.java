@@ -15,6 +15,7 @@ import org.example.services.TransferService;
 import org.example.utils.TestRunner;
 import org.example.utils.ValidationUtils;
 
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -230,20 +231,57 @@ public class ConsoleApp {
     }
     
     /**
-     * Handles concurrent simulation menu (placeholder for future implementation).
+     * Handles concurrent simulation menu.
+     * Simulates multiple concurrent transactions on a single account to demonstrate thread safety.
      */
     private void runConcurrentSimulationMenu() {
         System.out.println("\n╔══════════════════════════════════════════════════╗");
         System.out.println("║         RUN CONCURRENT SIMULATION                 ║");
         System.out.println("╚══════════════════════════════════════════════════╝\n");
+        System.out.println("Enter 0 to go back.\n");
         
-        System.out.println("Concurrent Simulation functionality is coming soon!");
-        System.out.println("This feature will allow you to:");
-        System.out.println("  - Simulate multiple concurrent transactions");
-        System.out.println("  - Test thread safety of account operations");
-        System.out.println("  - Analyze performance under concurrent load\n");
+        String accountNumber = ValidationUtils.getAccountNumber("Enter Account Number", true);
+        if (accountNumber.equals("0")) {
+            menuStack.pop();
+            return;
+        }
         
-        ValidationUtils.getString("Press Enter to continue");
+        Account account = accountManager.findAccount(accountNumber);
+        if (account == null) {
+            displayError("Account not found. Please check the account number.");
+            ValidationUtils.getString("Press Enter to continue");
+            menuStack.pop();
+            return;
+        }
+        
+        double initialBalance = account.getBalance();
+        System.out.println("\nInitial Balance for " + accountNumber + ": " + ValidationUtils.formatAmount(initialBalance));
+        System.out.println("\nRunning concurrent transaction simulation...\n");
+        
+        // Create concurrent transaction simulator
+        org.example.services.ConcurrentTransactionSimulator simulator = 
+                new org.example.services.ConcurrentTransactionSimulator(accountManager, transactionManager);
+        
+        // Create default operations
+        List<org.example.services.ConcurrentTransactionSimulator.TransactionOperation> operations = 
+                org.example.services.ConcurrentTransactionSimulator.createDefaultOperations();
+        
+        try {
+            // Execute concurrent transactions using threads
+            double finalBalance = simulator.simulateConcurrentTransactions(accountNumber, operations);
+            
+            System.out.println("\n✓ Thread-safe operations completed successfully.");
+            System.out.println("Final Balance for " + accountNumber + ": " + ValidationUtils.formatAmount(finalBalance));
+            System.out.println("Balance Change: " + 
+                (finalBalance >= initialBalance ? "+" : "") + 
+                ValidationUtils.formatAmount(finalBalance - initialBalance));
+        } catch (InterruptedException e) {
+            displayError("Simulation was interrupted: " + e.getMessage());
+        } catch (Exception e) {
+            displayError("Error during simulation: " + e.getMessage());
+        }
+        
+        ValidationUtils.getString("\nPress Enter to continue");
         menuStack.pop();
     }
     
