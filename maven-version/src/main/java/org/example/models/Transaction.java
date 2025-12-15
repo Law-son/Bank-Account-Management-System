@@ -21,6 +21,23 @@ public class Transaction {
     private String timestamp;
     private LocalDateTime dateTime; // Stored for efficient sorting
 
+    /**
+     * Resets the transaction counter. Used primarily for testing purposes.
+     */
+    public static void resetTransactionCounter() {
+        transactionCounter = 0;
+    }
+    
+    /**
+     * Sets the transaction counter to the specified value.
+     * Used when loading transactions from persistence to ensure new transactions get correct IDs.
+     *
+     * @param value the value to set the counter to
+     */
+    public static void setTransactionCounter(int value) {
+        transactionCounter = value;
+    }
+
     public Transaction(String accountNumber, String type, double amount, double balanceAfter) {
         this.transactionId = "TXN" + String.format("%03d", ++transactionCounter);
         this.accountNumber = accountNumber;

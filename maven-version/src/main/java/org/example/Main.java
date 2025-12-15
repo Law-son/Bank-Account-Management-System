@@ -3,6 +3,7 @@ package org.example;
 import org.example.presentation.ConsoleApp;
 import org.example.services.AccountCreationService;
 import org.example.services.AccountManager;
+import org.example.services.DataPersistenceService;
 import org.example.services.StatementGenerator;
 import org.example.services.TransactionManager;
 import org.example.services.TransferService;
@@ -26,6 +27,7 @@ public class Main {
         StatementGenerator statementGenerator = new StatementGenerator(transactionManager);
         TransferService transferService = new TransferService(accountManager, transactionManager);
         AccountCreationService accountCreationService = new AccountCreationService(accountManager, transactionManager);
+        DataPersistenceService dataPersistenceService = new DataPersistenceService(accountManager, transactionManager);
         
         // Create and start console application
         ConsoleApp app = new ConsoleApp(
@@ -33,7 +35,8 @@ public class Main {
                 transactionManager,
                 statementGenerator,
                 transferService,
-                accountCreationService
+                accountCreationService,
+                dataPersistenceService
         );
         
         app.start();
