@@ -504,8 +504,8 @@ public class ConsoleApp {
             System.out.printf("Amount: %s%n", ValidationUtils.formatAmount(amount));
             System.out.printf("From Account Balance After: %s%n",
                     ValidationUtils.formatAmount(fromAccount.getBalance() - amount));
-            System.out.printf("To Account Balance After: %s%n",
-                    ValidationUtils.formatAmount(toAccount.getBalance() + amount));
+//            System.out.printf("To Account Balance After: %s%n",
+//                    ValidationUtils.formatAmount(toAccount.getBalance() + amount));
             System.out.println("---------------------------------");
             
             String confirmation = ValidationUtils.getYesNo("Confirm transfer? (Y/N)");

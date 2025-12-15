@@ -81,8 +81,8 @@ public class ConcurrentTransactionSimulator {
                     String action = "Depositing".equals(operation.getType()) ? "Depositing" : 
                                    "Withdrawing".equals(operation.getType()) ? "Withdrawing" : 
                                    operation.getType();
-                    System.out.println(threadName + ": " + action + 
-                                     " $" + ValidationUtils.formatAmount(operation.getAmount()) + 
+                    System.out.println(threadName + ": " + action +
+                                     " " + ValidationUtils.formatAmount(operation.getAmount()) +
                                      (operation.getType().equalsIgnoreCase("Deposit") ? " to " : " from ") + 
                                      accountNumber);
                     
