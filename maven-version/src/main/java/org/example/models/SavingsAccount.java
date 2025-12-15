@@ -25,24 +25,26 @@ public class SavingsAccount extends Account {
 
     /**
      * Checks if a withdrawal of the specified amount is possible.
+     * Synchronized for thread-safe balance checks.
      *
      * @param amount the amount to check
      * @return true if withdrawal would maintain minimum balance, false otherwise
      */
     @Override
-    public boolean canWithdraw(double amount) {
+    public synchronized boolean canWithdraw(double amount) {
         return balance - amount >= minimumBalance;
     }
     
     /**
      * Withdraws the specified amount from the savings account.
+     * Synchronized to prevent race conditions during concurrent withdrawals.
      *
      * @param amount the amount to withdraw
      * @return true if withdrawal is successful
      * @throws InsufficientFundsException if withdrawal would violate minimum balance requirement
      */
     @Override
-    public boolean withdraw(double amount) throws InsufficientFundsException {
+    public synchronized boolean withdraw(double amount) throws InsufficientFundsException {
         if (balance - amount >= minimumBalance) {
             balance -= amount;
             return true;
