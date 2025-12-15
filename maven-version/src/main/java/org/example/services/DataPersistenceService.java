@@ -7,6 +7,7 @@ import org.example.models.PremiumCustomer;
 import org.example.models.RegularCustomer;
 import org.example.models.SavingsAccount;
 import org.example.models.Transaction;
+import org.example.utils.ValidationUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -160,6 +161,7 @@ public class DataPersistenceService {
     
     /**
      * Saves all accounts to file.
+     * Validates data before saving to ensure integrity.
      *
      * @return true if successful, false otherwise
      */
@@ -167,8 +169,18 @@ public class DataPersistenceService {
         Path accountsPath = getAccountsFilePath();
         
         try {
+            // Validate all accounts before saving
+            List<Account> accountsToSave = accountManager.getAllAccounts().values().stream()
+                    .filter(this::validateAccount)
+                    .collect(Collectors.toList());
+            
+            if (accountsToSave.isEmpty() && accountManager.getAccountCount() > 0) {
+                System.err.println("Warning: No valid accounts to save after validation.");
+                return false;
+            }
+            
             // Use Streams to convert accounts to lines
-            List<String> lines = accountManager.getAllAccounts().values().stream()
+            List<String> lines = accountsToSave.stream()
                     .map(this::serializeAccount)
                     .collect(Collectors.toList());
             
@@ -182,6 +194,7 @@ public class DataPersistenceService {
     
     /**
      * Saves all transactions to file.
+     * Validates data before saving to ensure integrity.
      *
      * @return true if successful, false otherwise
      */
@@ -189,8 +202,13 @@ public class DataPersistenceService {
         Path transactionsPath = getTransactionsFilePath();
         
         try {
+            // Validate all transactions before saving
+            List<Transaction> transactionsToSave = transactionManager.getAllTransactions().stream()
+                    .filter(this::validateTransaction)
+                    .collect(Collectors.toList());
+            
             // Use Streams to convert transactions to lines
-            List<String> lines = transactionManager.getAllTransactions().stream()
+            List<String> lines = transactionsToSave.stream()
                     .map(this::serializeTransaction)
                     .collect(Collectors.toList());
             
@@ -247,15 +265,99 @@ public class DataPersistenceService {
     }
     
     /**
+     * Validates an account before saving.
+     *
+     * @param account the account to validate
+     * @return true if valid, false otherwise
+     */
+    private boolean validateAccount(Account account) {
+        if (account == null) {
+            return false;
+        }
+        
+        // Validate account number format
+        if (!ValidationUtils.isValidAccountNumber(account.getAccountNumber())) {
+            System.err.println("Invalid account number format: " + account.getAccountNumber());
+            return false;
+        }
+        
+        // Validate customer contact
+        Customer customer = account.getCustomer();
+        if (customer != null && !ValidationUtils.isValidPhoneNumber(customer.getContact())) {
+            System.err.println("Invalid phone number format for account " + account.getAccountNumber() + ": " + customer.getContact());
+            return false;
+        }
+        
+        // Validate balance is not negative (checking accounts can have negative balance due to overdraft)
+        // But we'll still validate it's a valid number
+        if (Double.isNaN(account.getBalance()) || Double.isInfinite(account.getBalance())) {
+            System.err.println("Invalid balance for account " + account.getAccountNumber());
+            return false;
+        }
+        
+        // Validate savings account minimum balance
+        if (account instanceof SavingsAccount) {
+            SavingsAccount savings = (SavingsAccount) account;
+            if (savings.getBalance() < savings.getMinimumBalance()) {
+                System.err.println("Warning: Account " + account.getAccountNumber() + 
+                                 " balance is below minimum, but will still save.");
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Validates a transaction before saving.
+     *
+     * @param transaction the transaction to validate
+     * @return true if valid, false otherwise
+     */
+    private boolean validateTransaction(Transaction transaction) {
+        if (transaction == null) {
+            return false;
+        }
+        
+        // Validate account number format
+        if (!ValidationUtils.isValidAccountNumber(transaction.getAccountNumber())) {
+            System.err.println("Invalid account number in transaction: " + transaction.getTransactionID());
+            return false;
+        }
+        
+        // Validate amount is a valid number
+        if (Double.isNaN(transaction.getAmount()) || Double.isInfinite(transaction.getAmount())) {
+            System.err.println("Invalid amount in transaction: " + transaction.getTransactionID());
+            return false;
+        }
+        
+        // Validate balance after is a valid number
+        if (Double.isNaN(transaction.getBalance()) || Double.isInfinite(transaction.getBalance())) {
+            System.err.println("Invalid balance after in transaction: " + transaction.getTransactionID());
+            return false;
+        }
+        
+        // Verify account exists for this transaction
+        Account account = accountManager.findAccount(transaction.getAccountNumber());
+        if (account == null) {
+            System.err.println("Warning: Transaction " + transaction.getTransactionID() + 
+                             " references non-existent account: " + transaction.getAccountNumber());
+        }
+        
+        return true;
+    }
+    
+    /**
      * Parses a line into an Account object.
+     * Validates data during parsing.
      *
      * @param line the line to parse
-     * @return the parsed Account, or null if parsing fails
+     * @return the parsed Account, or null if parsing fails or validation fails
      */
     private Account parseAccount(String line) {
         try {
             String[] parts = line.split("\\|");
             if (parts.length < 8) {
+                System.err.println("Invalid account line format: insufficient parts");
                 return null;
             }
             
@@ -263,10 +365,59 @@ public class DataPersistenceService {
             String accountNumber = parts[1];
             String customerType = parts[2];
             String customerName = parts[3];
-            int age = Integer.parseInt(parts[4]);
+            
+            // Validate account number format
+            if (!ValidationUtils.isValidAccountNumber(accountNumber)) {
+                System.err.println("Invalid account number format in line: " + accountNumber);
+                return null;
+            }
+            
+            // Validate and parse age
+            int age;
+            try {
+                age = Integer.parseInt(parts[4]);
+                if (age <= 0 || age > 150) {
+                    System.err.println("Invalid age in account line: " + age);
+                    return null;
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid age format in account line: " + parts[4]);
+                return null;
+            }
+            
             String contact = parts[5];
             String address = parts[6];
-            double balance = Double.parseDouble(parts[7]);
+            
+            // Validate phone number format
+            if (!ValidationUtils.isValidPhoneNumber(contact)) {
+                System.err.println("Invalid phone number format in account line: " + contact);
+                return null;
+            }
+            
+            // Validate address
+            if (address == null || address.trim().isEmpty()) {
+                System.err.println("Invalid address in account line: empty address");
+                return null;
+            }
+            
+            // Validate and parse balance
+            double balance;
+            try {
+                balance = Double.parseDouble(parts[7]);
+                if (Double.isNaN(balance) || Double.isInfinite(balance)) {
+                    System.err.println("Invalid balance in account line: " + parts[7]);
+                    return null;
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid balance format in account line: " + parts[7]);
+                return null;
+            }
+            
+            // Validate customer type
+            if (!"Premium".equals(customerType) && !"Regular".equals(customerType)) {
+                System.err.println("Invalid customer type in account line: " + customerType);
+                return null;
+            }
             
             // Create customer
             Customer customer;
@@ -276,18 +427,24 @@ public class DataPersistenceService {
                 customer = new RegularCustomer(customerName, age, contact, address);
             }
             
-            // Create account based on type with initial balance
+            // Validate account type and create account
             Account account;
             if ("Savings".equals(accountType)) {
                 account = new SavingsAccount(customer, balance);
             } else if ("Checking".equals(accountType)) {
                 account = new CheckingAccount(customer, balance);
             } else {
+                System.err.println("Invalid account type in account line: " + accountType);
                 return null;
             }
             
             // Set account number manually since constructor auto-generates it
             setAccountNumber(account, accountNumber);
+            
+            // Final validation
+            if (!validateAccount(account)) {
+                return null;
+            }
             
             return account;
         } catch (Exception e) {
@@ -316,28 +473,77 @@ public class DataPersistenceService {
     
     /**
      * Parses a line into a Transaction object using method reference pattern.
+     * Validates data during parsing.
      *
      * @param line the line to parse
-     * @return the parsed Transaction, or null if parsing fails
+     * @return the parsed Transaction, or null if parsing fails or validation fails
      */
     private Transaction parseTransaction(String line) {
         try {
             String[] parts = line.split("\\|");
             if (parts.length != 6) {
+                System.err.println("Invalid transaction line format: expected 6 parts, got " + parts.length);
                 return null;
             }
             
+            String transactionId = parts[0];
             String accountNumber = parts[1];
             String type = parts[2];
-            double amount = Double.parseDouble(parts[3]);
-            double balanceAfter = Double.parseDouble(parts[4]);
+            
+            // Validate account number format
+            if (!ValidationUtils.isValidAccountNumber(accountNumber)) {
+                System.err.println("Invalid account number format in transaction line: " + accountNumber);
+                return null;
+            }
+            
+            // Validate transaction type
+            if (!"Deposit".equalsIgnoreCase(type) && 
+                !"Withdrawal".equalsIgnoreCase(type) &&
+                !"Transfer In".equalsIgnoreCase(type) &&
+                !"Transfer Out".equalsIgnoreCase(type)) {
+                System.err.println("Invalid transaction type in line: " + type);
+                return null;
+            }
+            
+            // Validate and parse amount
+            double amount;
+            try {
+                amount = Double.parseDouble(parts[3]);
+                if (Double.isNaN(amount) || Double.isInfinite(amount)) {
+                    System.err.println("Invalid amount in transaction line: " + parts[3]);
+                    return null;
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid amount format in transaction line: " + parts[3]);
+                return null;
+            }
+            
+            // Validate and parse balance after
+            double balanceAfter;
+            try {
+                balanceAfter = Double.parseDouble(parts[4]);
+                if (Double.isNaN(balanceAfter) || Double.isInfinite(balanceAfter)) {
+                    System.err.println("Invalid balance after in transaction line: " + parts[4]);
+                    return null;
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid balance after format in transaction line: " + parts[4]);
+                return null;
+            }
+            
+            String dateTime = parts[5];
             
             // Create transaction
             Transaction transaction = new Transaction(accountNumber, type, amount, balanceAfter);
             
             // Set transaction ID and timestamp manually
-            setTransactionId(transaction, parts[0]);
-            setTransactionTimestamp(transaction, parts[5]);
+            setTransactionId(transaction, transactionId);
+            setTransactionTimestamp(transaction, dateTime);
+            
+            // Final validation
+            if (!validateTransaction(transaction)) {
+                return null;
+            }
             
             return transaction;
         } catch (Exception e) {
