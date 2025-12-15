@@ -263,7 +263,7 @@ public class ConsoleApp {
         
         int age = ValidationUtils.getIntPositive("Enter customer age");
         String contact = ValidationUtils.getContactNumber("Enter customer contact");
-        String address = ValidationUtils.getString("Enter customer address");
+        String address = ValidationUtils.getAddress("Enter customer address");
         
         // Display customer type options
         System.out.println("\nCustomer type:                      ");
@@ -306,7 +306,7 @@ public class ConsoleApp {
         System.out.println("--------------------------");
         System.out.println("Enter 0 to go back.\n");
         
-        String accountNumber = ValidationUtils.getString("Enter Account Number");
+        String accountNumber = ValidationUtils.getAccountNumber("Enter Account Number", true);
         if (accountNumber.equals("0")) {
             menuStack.pop();
             return;
@@ -437,7 +437,7 @@ public class ConsoleApp {
      * @param fromAccount the source account
      */
     private void handleTransfer(Account fromAccount) {
-        String toAccountNumber = ValidationUtils.getString("Enter Destination Account Number");
+        String toAccountNumber = ValidationUtils.getAccountNumber("Enter Destination Account Number", true);
         if (toAccountNumber.equals("0")) {
             menuStack.pop();
             return;
@@ -503,7 +503,7 @@ public class ConsoleApp {
         String accountNumber = "";
         
         while (account == null) {
-            accountNumber = ValidationUtils.getString("Enter Account Number");
+            accountNumber = ValidationUtils.getAccountNumber("Enter Account Number", true);
             if (accountNumber.equals("0")) {
                 menuStack.pop();
                 return;
