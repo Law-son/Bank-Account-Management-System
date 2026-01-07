@@ -3,6 +3,7 @@ package org.example.services;
 import org.example.models.Transaction;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,10 +14,11 @@ import java.util.stream.Collectors;
  * Implements functional programming patterns with lambdas and comparators.
  */
 public class TransactionManager {
-    private final List<Transaction> transactions = new ArrayList<>();
+    private final List<Transaction> transactions = Collections.synchronizedList(new ArrayList<>());
 
     /**
      * Adds a transaction to the manager.
+     * Thread-safe for concurrent access.
      *
      * @param transaction the transaction to add
      */
