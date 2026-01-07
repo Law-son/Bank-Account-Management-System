@@ -36,8 +36,7 @@ public class AccountManager {
         accounts.put(account.getAccountNumber(), account);
 
         if (!silent) {
-            if (account instanceof SavingsAccount) {
-                SavingsAccount savingsAccount = (SavingsAccount) account;
+            if (account instanceof SavingsAccount savingsAccount) {
                 System.out.println("\nAccount created successfully!");
                 System.out.printf("Account Number: %s%n", account.getAccountNumber());
                 System.out.printf("Customer: %s (%s)%n", account.getCustomer().getName(), account.getCustomer().getCustomerType());
@@ -46,8 +45,7 @@ public class AccountManager {
                 System.out.printf("Interest Rate: %.1f%%%n", savingsAccount.getInterestRate());
                 System.out.printf("Minimum Balance: %s%n", ValidationUtils.formatAmount(savingsAccount.getMinimumBalance()));
                 System.out.printf("Status: %s%n\n", account.getStatus());
-            } else if (account instanceof CheckingAccount) {
-                CheckingAccount checkingAccount = (CheckingAccount) account;
+            } else if (account instanceof CheckingAccount checkingAccount) {
                 System.out.println("\nAccount created successfully!");
                 System.out.printf("Account Number: %s%n", account.getAccountNumber());
                 System.out.printf("Customer: %s (%s)%n", account.getCustomer().getName(), account.getCustomer().getCustomerType());

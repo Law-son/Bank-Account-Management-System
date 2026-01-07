@@ -70,6 +70,7 @@ public abstract class Account implements Transactable {
      * @throws InvalidAmountException if the amount is less than or equal to zero
      */
     public synchronized void deposit(double amount) throws InvalidAmountException {
+//        synchronized (this);
         if (amount <= 0) {
             throw new InvalidAmountException("Invalid amount. Amount must be greater than 0.");
         }

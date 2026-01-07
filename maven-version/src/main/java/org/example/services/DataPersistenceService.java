@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -85,12 +86,12 @@ public class DataPersistenceService {
             List<Account> accounts = lines
                     .filter(line -> !line.trim().isEmpty())
                     .map(this::parseAccount)
-                    .filter(account -> account != null)
-                    .collect(Collectors.toList());
+                    .filter(Objects::nonNull)
+                    .toList();
             
             accounts.forEach(account -> accountManager.addAccount(account, true));
             
-            // Update account counter to highest account number to avoid conflicts
+            // Update account counter to the highest account number to avoid conflicts
             if (!accounts.isEmpty()) {
                 int maxCounter = accounts.stream()
                         .map(Account::getAccountNumber)
@@ -130,12 +131,12 @@ public class DataPersistenceService {
             List<Transaction> transactions = lines
                     .filter(line -> !line.trim().isEmpty())
                     .map(this::parseTransaction)
-                    .filter(transaction -> transaction != null)
-                    .collect(Collectors.toList());
+                    .filter(Objects::nonNull)
+                    .toList();
             
             transactions.forEach(transactionManager::addTransaction);
             
-            // Update transaction counter to highest transaction ID to avoid conflicts
+            // Update transaction counter to the highest transaction ID to avoid conflicts
             if (!transactions.isEmpty()) {
                 int maxCounter = transactions.stream()
                         .map(Transaction::getTransactionID)
@@ -172,7 +173,7 @@ public class DataPersistenceService {
             // Validate all accounts before saving
             List<Account> accountsToSave = accountManager.getAllAccounts().values().stream()
                     .filter(this::validateAccount)
-                    .collect(Collectors.toList());
+                    .toList();
             
             if (accountsToSave.isEmpty() && accountManager.getAccountCount() > 0) {
                 System.err.println("Warning: No valid accounts to save after validation.");
@@ -182,7 +183,7 @@ public class DataPersistenceService {
             // Use Streams to convert accounts to lines
             List<String> lines = accountsToSave.stream()
                     .map(this::serializeAccount)
-                    .collect(Collectors.toList());
+                    .toList();
             
             Files.write(accountsPath, lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
             return true;
@@ -205,7 +206,7 @@ public class DataPersistenceService {
             // Validate all transactions before saving
             List<Transaction> transactionsToSave = transactionManager.getAllTransactions().stream()
                     .filter(this::validateTransaction)
-                    .collect(Collectors.toList());
+                    .toList();
             
             // Use Streams to convert transactions to lines
             List<String> lines = transactionsToSave.stream()
@@ -253,11 +254,9 @@ public class DataPersistenceService {
         sb.append(customer.getAddress()).append("|");
         sb.append(account.getBalance()).append("|");
         
-        if (account instanceof SavingsAccount) {
-            SavingsAccount savings = (SavingsAccount) account;
+        if (account instanceof SavingsAccount savings) {
             sb.append(savings.getInterestRate()).append(",").append(savings.getMinimumBalance());
-        } else if (account instanceof CheckingAccount) {
-            CheckingAccount checking = (CheckingAccount) account;
+        } else if (account instanceof CheckingAccount checking) {
             sb.append(checking.getOverdraftLimit());
         }
         
@@ -296,8 +295,7 @@ public class DataPersistenceService {
         }
         
         // Validate savings account minimum balance
-        if (account instanceof SavingsAccount) {
-            SavingsAccount savings = (SavingsAccount) account;
+        if (account instanceof SavingsAccount savings) {
             if (savings.getBalance() < savings.getMinimumBalance()) {
                 System.err.println("Warning: Account " + account.getAccountNumber() + 
                                  " balance is below minimum, but will still save.");

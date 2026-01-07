@@ -66,8 +66,7 @@ public class ConcurrentTransactionSimulator {
             private int threadNumber = 1;
             @Override
             public Thread newThread(Runnable r) {
-                Thread thread = new Thread(r, "Thread-" + threadNumber++);
-                return thread;
+                return new Thread(r, "Thread-" + threadNumber++);
             }
         };
         ExecutorService executor = Executors.newFixedThreadPool(operations.size(), threadFactory);

@@ -67,7 +67,7 @@ public class ConsoleApp {
         
         // Only seed data if no accounts were loaded (first run)
         if (accountManager.getAccountCount() == 0) {
-            seedData();
+//            seedData();
         }
         
         menuStack.push(this::showMainMenu);
@@ -132,6 +132,7 @@ public class ConsoleApp {
                 break;
             case 6:
                 menuStack.pop();
+                saveData();
                 break;
         }
     }
@@ -180,7 +181,7 @@ public class ConsoleApp {
         ValidationUtils.getString("Press Enter to continue");
         menuStack.pop();
     }
-    
+
     /**
      * Handles save/load data menu (placeholder for future implementation).
      */
@@ -513,13 +514,8 @@ public class ConsoleApp {
                 transferService.transfer(fromAccount.getAccountNumber(), toAccountNumber, amount);
                 System.out.println("\nTransfer completed successfully!");
             }
-        } catch (AccountNotFoundException e) {
-            displayError(e.getMessage());
-        } catch (InvalidAmountException e) {
-            displayError(e.getMessage());
-        } catch (InsufficientFundsException e) {
-            displayError(e.getMessage());
-        } catch (OverdraftExceededException e) {
+        } catch (AccountNotFoundException | InvalidAmountException | InsufficientFundsException |
+                 OverdraftExceededException e) {
             displayError(e.getMessage());
         } catch (Exception e) {
             displayError("An unexpected error occurred: " + e.getMessage());

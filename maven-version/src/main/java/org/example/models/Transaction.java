@@ -20,13 +20,6 @@ public class Transaction {
     private double balanceAfter;
     private String timestamp;
     private LocalDateTime dateTime; // Stored for efficient sorting
-
-    /**
-     * Resets the transaction counter. Used primarily for testing purposes.
-     */
-    public static void resetTransactionCounter() {
-        transactionCounter = 0;
-    }
     
     /**
      * Sets the transaction counter to the specified value.
